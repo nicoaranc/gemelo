@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 pb-8">
       <section className="grid items-center gap-10 pt-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <div className="flex flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <p className="font-mono text-xs tracking-widest text-primary uppercase">Track AI Security · Platanus Hack 26</p>
           <h1 className="text-4xl leading-[1.05] font-semibold sm:text-5xl">
             Lo único que tu agente puede filtrar es una llave falsa.

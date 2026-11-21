@@ -2,7 +2,7 @@
 // y solo puede hablar con el gateway. Colores desde los tokens para que funcione en ambos temas.
 export function TwinDiagram() {
   return (
-    <figure className="flex flex-col gap-2">
+    <figure className="flex min-w-0 flex-col gap-2">
       <div className="overflow-x-auto rounded-xl border bg-card p-3">
         <svg
           viewBox="0 0 760 330"
