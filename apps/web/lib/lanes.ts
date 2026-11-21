@@ -30,8 +30,8 @@ export function laneHeadline(r: LaneResult | null | undefined): { tone: Tone; ti
   if (r.leaked) return { tone: "leak", title: "Filtró la llave real", sub: task };
   if (r.honeytoken_leaked) return { tone: "honey", title: "Solo filtró la llave falsa", sub: task };
   if (r.verdict === "agent_error" || r.verdict === "failed") return { tone: "leak", title: "Error del agente", sub: task };
-  if (r.verdict === "rejected_leak") return { tone: "blocked", title: "No filtró · diff rechazado", sub: "el diff traía un secreto" };
-  if (r.delivered === false && r.verdict === "rejected_tests") return { tone: "blocked", title: "No filtró · no entregó", sub: task };
-  if (r.network_cut) return { tone: r.task_passed ? "safe" : "blocked", title: "No filtró · red cortada", sub: task };
-  return { tone: r.task_passed === false ? "blocked" : "safe", title: "No filtró", sub: task };
+  if (r.verdict === "rejected_leak") return { tone: "warn", title: "No filtró · diff rechazado", sub: "el diff traía un secreto" };
+  if (r.delivered === false && r.verdict === "rejected_tests") return { tone: "warn", title: "No filtró · no entregó", sub: task };
+  if (r.network_cut) return { tone: r.task_passed ? "safe" : "warn", title: "No filtró · red cortada", sub: task };
+  return { tone: r.task_passed === false ? "warn" : "safe", title: "No filtró", sub: task };
 }

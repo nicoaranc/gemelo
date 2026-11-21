@@ -15,13 +15,13 @@ const LANES = [
     icon: Eye,
     name: "Monitor LLM",
     how: "Haiku revisa cada comando antes de que corra.",
-    result: { tone: "honey" as const, text: "Se puede engañar" },
+    result: { tone: "warn" as const, text: "Se puede engañar" },
   },
   {
     icon: Shield,
     name: "Estilo FIDES",
     how: "Al leer un secreto se le corta la red.",
-    result: { tone: "blocked" as const, text: "No filtra, pero rompe tareas" },
+    result: { tone: "warn" as const, text: "No filtra, pero rompe tareas" },
   },
   {
     icon: Split,
@@ -88,7 +88,7 @@ export default function Home() {
           {LANES.map(({ icon: Icon, name, how, result }) => (
             <li
               key={name}
-              className={`flex flex-col gap-3 rounded-xl border bg-card p-4 ${name === "Gemelo" ? "border-primary/50" : ""}`}
+              className={`flex flex-col gap-3 rounded-xl border bg-card p-4 ${name === "Gemelo" ? "border-2 border-primary bg-raised" : ""}`}
             >
               <Icon className={`size-5 ${name === "Gemelo" ? "text-primary" : "text-muted-foreground"}`} aria-hidden />
               <div className={`font-display text-lg font-semibold ${name === "Gemelo" ? "text-primary" : ""}`}>{name}</div>
@@ -125,7 +125,7 @@ export default function Home() {
             <span>Si alguien intenta usarla, un canary token avisa, aunque sea minutos después.</span>
           </li>
           <li className="flex gap-3">
-            <BellRing className="mt-1 size-4 shrink-0 text-honey" aria-hidden />
+            <BellRing className="mt-1 size-4 shrink-0 text-primary" aria-hidden />
             <span>El diff del gemelo alto se escanea antes de aceptarlo, por si el agente escondió la llave real en el código.</span>
           </li>
         </ul>

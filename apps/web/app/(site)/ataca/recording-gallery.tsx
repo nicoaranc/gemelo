@@ -11,6 +11,7 @@ const DOT: Record<string, string> = {
   leak: "bg-leak",
   honey: "bg-honey",
   safe: "bg-safe",
+  warn: "bg-warn",
   blocked: "bg-blocked",
   muted: "bg-muted-foreground/40",
 };

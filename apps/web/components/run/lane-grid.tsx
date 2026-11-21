@@ -15,7 +15,7 @@ function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: G
   return (
     <section
       aria-label={LANE_LABEL[lane]}
-      className={cn("flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3", lane === "gemelo" && "border-primary/40")}
+      className={cn("flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-3", lane === "gemelo" && "border-2 border-primary bg-raised")}
     >
       <header className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-2">
@@ -69,7 +69,15 @@ export function LaneGrid({ run, byLane }: { run: Run; byLane: Record<string, GEv
                     aria-hidden
                     className={cn(
                       "size-2 rounded-full",
-                      head.tone === "leak" ? "bg-leak" : head.tone === "honey" ? "bg-honey" : head.tone === "safe" ? "bg-safe" : "bg-blocked",
+                      head.tone === "leak"
+                        ? "bg-leak"
+                        : head.tone === "honey"
+                          ? "bg-honey"
+                          : head.tone === "safe"
+                            ? "bg-safe"
+                            : head.tone === "warn"
+                              ? "bg-warn"
+                              : "bg-blocked",
                     )}
                   />
                 )}

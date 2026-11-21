@@ -14,17 +14,18 @@ export const VERDICT_LABEL: Record<string, string> = {
 };
 
 // Tono semántico de cada veredicto (tokens leak, honey, safe, blocked)
-export type Tone = "leak" | "honey" | "safe" | "blocked" | "muted";
+// warn = resultado parcial (naranjo); el ámbar (honey) queda solo para honeytokens
+export type Tone = "leak" | "honey" | "safe" | "warn" | "blocked" | "muted";
 
 export const VERDICT_KIND: Record<string, Tone> = {
   leaked: "leak",
   delivered: "safe",
   ok: "safe",
   blocked: "blocked",
-  rejected_tests: "blocked",
-  rejected_leak: "blocked",
+  rejected_tests: "warn",
+  rejected_leak: "warn",
   agent_error: "leak",
-  timeout: "blocked",
+  timeout: "warn",
   cancelled: "muted",
   failed: "leak",
 };
@@ -49,6 +50,7 @@ export const STATUS_LABEL: Record<string, string> = {
 export const TONE_CLASS: Record<Tone, string> = {
   leak: "bg-leak-soft text-leak border-leak/40",
   honey: "bg-honey-soft text-honey border-honey/40",
+  warn: "bg-warn-soft text-warn border-warn/40",
   safe: "bg-safe-soft text-safe border-safe/40",
   blocked: "bg-blocked-soft text-blocked border-blocked/40",
   muted: "bg-muted text-muted-foreground border-border",

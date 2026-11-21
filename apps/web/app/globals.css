@@ -1,97 +1,116 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Tema: oscuro por defecto (proyector y contenido tipo terminal). next-themes pone .dark en <html>. */
+/* Tema: oscuro por defecto (marca AIgis, oscura primero). next-themes pone .dark en <html>. */
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Tokens. Neutrales con un leve tinte azul verdoso; el acento es el verde azulado de Gemelo.
- * Semánticos del dominio, separados del acento:
- *   leak    = filtró un secreto real (pool B)
- *   honey   = honeytoken capturado (pool A): la trampa funcionó
- *   safe    = entregado sin filtrar
- *   blocked = bloqueado o red cortada
- *   tainted = contexto contaminado
+ * Tokens del sistema AIgis (docs/design-system/tokens.json), valores exactos.
+ * Los nombres de shadcn (background, card, primary…) apuntan a los del sistema.
+ * Semánticos del dominio, nunca decorativos:
+ *   leak    = fuga real de un secreto (pool B), errores
+ *   honey   = honeytoken / llave falsa (token honeytoken). Nada más usa ámbar.
+ *   safe    = contenido, tests en verde (token ok)
+ *   warn    = resultado parcial: monitor engañado, FIDES que rompe la tarea
+ *   blocked = neutro: cancelado o sin dato
+ *   tainted = contexto contaminado (riesgo, usa warn)
  */
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.985 0.003 200);
-  --foreground: oklch(0.2 0.015 230);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.015 230);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.015 230);
-  --primary: oklch(0.48 0.09 190);
-  --primary-foreground: oklch(0.985 0.003 200);
-  --secondary: oklch(0.95 0.006 200);
-  --secondary-foreground: oklch(0.25 0.015 230);
-  --muted: oklch(0.95 0.006 200);
-  --muted-foreground: oklch(0.48 0.015 230);
-  --accent: oklch(0.94 0.02 190);
-  --accent-foreground: oklch(0.3 0.06 190);
-  --destructive: oklch(0.55 0.2 27);
-  --border: oklch(0.9 0.008 210);
-  --input: oklch(0.9 0.008 210);
-  --ring: oklch(0.48 0.09 190);
+  --radius: 10px;
 
-  --leak: oklch(0.55 0.2 27);
-  --leak-soft: oklch(0.95 0.035 27);
-  --honey: oklch(0.62 0.14 70);
-  --honey-soft: oklch(0.95 0.045 80);
-  --safe: oklch(0.52 0.13 155);
-  --safe-soft: oklch(0.95 0.04 155);
-  --blocked: oklch(0.5 0.04 250);
-  --blocked-soft: oklch(0.94 0.012 250);
-  --tainted: oklch(0.5 0.15 300);
-  --tainted-soft: oklch(0.95 0.03 300);
-  --terminal: oklch(0.97 0.004 210);
+  /* Marca, fija en ambos temas */
+  --brand-ink: #0a1214;
+  --brand-signal: #3ddbc4;
+  --brand-canary: #f2b544;
+  --brand-fog: #e6f0ee;
+
+  /* Claro */
+  --background: #f3f6f5;
+  --foreground: #0a1214;
+  --card: #ffffff;
+  --card-foreground: #0a1214;
+  --popover: #ffffff;
+  --popover-foreground: #0a1214;
+  --raised: #dcf0ee;
+  --primary: #0f6b6b;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f6f5;
+  --secondary-foreground: #0a1214;
+  --muted: #f3f6f5;
+  --muted-foreground: #3e4e51;
+  --subtle: #5a6b6e;
+  --accent: #dcf0ee;
+  --accent-foreground: #0a1214;
+  --destructive: #bf3129;
+  --border: #d3dddb;
+  --input: #d3dddb;
+  --ring: #0f6b6b;
+
+  --leak: #bf3129;
+  --leak-soft: #fbe4e2;
+  --honey: #9a5b00;
+  --safe: #1d7a4f;
+  --safe-soft: #e1f3ea;
+  --warn: #a84c06;
+  --warn-soft: #fdebdd;
+  --terminal: var(--background);
   /* Serie de gráficos: azul validado (contraste y croma) contra las superficies de cada tema */
   --chart-1: #2a78d6;
 }
 
 .dark {
-  --background: oklch(0.16 0.01 230);
-  --foreground: oklch(0.93 0.006 210);
-  --card: oklch(0.2 0.012 230);
-  --card-foreground: oklch(0.93 0.006 210);
-  --popover: oklch(0.2 0.012 230);
-  --popover-foreground: oklch(0.93 0.006 210);
-  --primary: oklch(0.78 0.11 185);
-  --primary-foreground: oklch(0.18 0.02 220);
-  --secondary: oklch(0.25 0.012 230);
-  --secondary-foreground: oklch(0.93 0.006 210);
-  --muted: oklch(0.25 0.012 230);
-  --muted-foreground: oklch(0.68 0.015 220);
-  --accent: oklch(0.27 0.03 200);
-  --accent-foreground: oklch(0.9 0.05 185);
-  --destructive: oklch(0.68 0.19 25);
-  --border: oklch(0.3 0.012 230);
-  --input: oklch(0.32 0.012 230);
-  --ring: oklch(0.78 0.11 185);
+  --background: #0a1214;
+  --foreground: #e6f0ee;
+  --card: #121d20;
+  --card-foreground: #e6f0ee;
+  --popover: #121d20;
+  --popover-foreground: #e6f0ee;
+  --raised: #10353a;
+  --primary: #3ddbc4;
+  --primary-foreground: #0a1214;
+  --secondary: #0a1214;
+  --secondary-foreground: #e6f0ee;
+  --muted: #0a1214;
+  --muted-foreground: #a9bdba;
+  --subtle: #8fa6a3;
+  --accent: #10353a;
+  --accent-foreground: #e6f0ee;
+  --destructive: #ff7b72;
+  --border: #24363a;
+  --input: #24363a;
+  --ring: #3ddbc4;
 
-  --leak: oklch(0.7 0.19 25);
-  --leak-soft: oklch(0.3 0.08 25);
-  --honey: oklch(0.82 0.14 80);
-  --honey-soft: oklch(0.32 0.06 75);
-  --safe: oklch(0.78 0.15 155);
-  --safe-soft: oklch(0.29 0.05 155);
-  --blocked: oklch(0.72 0.04 250);
-  --blocked-soft: oklch(0.28 0.02 250);
-  --tainted: oklch(0.75 0.13 300);
-  --tainted-soft: oklch(0.29 0.05 300);
-  --terminal: oklch(0.13 0.008 230);
+  --leak: #ff7b72;
+  --leak-soft: #3a1715;
+  --honey: #f2b544;
+  --safe: #5fd19a;
+  --safe-soft: #14301f;
+  --warn: #f59a4b;
+  --warn-soft: #35200f;
   --chart-1: #3987e5;
 }
 
-@theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+/* Derivados: el sistema pide el ámbar al 14 % como fondo, y un neutro para lo que no es estado */
+:root,
+.dark {
+  --honey-soft: color-mix(in srgb, var(--honey) 14%, transparent);
+  --blocked: var(--subtle);
+  --blocked-soft: color-mix(in srgb, var(--subtle) 14%, transparent);
+  --tainted: var(--warn);
+  --tainted-soft: var(--warn-soft);
+}
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+@theme inline {
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
+  --font-brand: var(--font-inter), system-ui, sans-serif;
+
+  /* Radios AIgis: 6 chips e inputs, 10 botones y código, 14 tarjetas y carriles */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,6 +141,14 @@
   --color-blocked-soft: var(--blocked-soft);
   --color-tainted: var(--tainted);
   --color-tainted-soft: var(--tainted-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-raised: var(--raised);
+  --color-subtle: var(--subtle);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-signal: var(--brand-signal);
+  --color-brand-canary: var(--brand-canary);
+  --color-brand-fog: var(--brand-fog);
   --color-terminal: var(--terminal);
   --color-chart-1: var(--chart-1);
 }

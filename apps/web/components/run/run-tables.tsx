@@ -127,7 +127,7 @@ export function DiffViewer({ run, diffs, ready }: { run: Run; diffs: Diffs; read
       ) : !d ? (
         <p className="text-sm text-muted-foreground">Cargando…</p>
       ) : d.error ? (
-        <p className="text-sm text-honey">{d.error}</p>
+        <p className="text-sm text-warn">{d.error}</p>
       ) : (
         <pre className="max-h-[32rem] overflow-auto rounded-lg border bg-terminal p-3 font-mono text-xs leading-5">
           {d.text!.split("\n").map((line, i) => (

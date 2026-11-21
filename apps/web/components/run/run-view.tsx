@@ -72,7 +72,7 @@ function RunHeader({
                 aria-hidden
                 className={cn(
                   "size-1.5 rounded-full",
-                  stream === "live" || stream === "playing" ? "animate-pulse bg-safe" : stream === "retrying" ? "bg-honey" : "bg-muted-foreground/50",
+                  stream === "live" || stream === "playing" ? "animate-pulse bg-safe" : stream === "retrying" ? "bg-warn" : "bg-muted-foreground/50",
                 )}
               />
               {STREAM_LABEL[stream]}
