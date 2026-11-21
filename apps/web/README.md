@@ -6,7 +6,7 @@ Web de AIgis. Next.js 15 con React 19, Tailwind v4 y shadcn/ui. Spec: `openspec/
 
 | Ruta | Acceso | Qué es |
 |---|---|---|
-| `/` | Público | Landing: la tesis, el diagrama de los dos gemelos, los cuatro carriles y lo que no cubre |
+| `/` | Público | Landing: la tesis, el diagrama de los dos gemelos, los carriles y lo que no cubre |
 | `/ataca` | Público | Galería de corridas grabadas. Con sesión, además, el formulario para lanzar en vivo |
 | `/replay/[id]` | Público | Reproduce una grabación sin API ni sesión (`/replay` redirige a `/ataca`) |
 | `/resultados` | Público | Tabla y gráfico desde `public/results/summary.json` |

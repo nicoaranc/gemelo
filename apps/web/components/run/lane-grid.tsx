@@ -52,12 +52,17 @@ function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: G
   );
 }
 
-// Escritorio: los 4 carriles a la vez, con el carril AIgis más ancho. Móvil: un carril por pestaña.
+// Escritorio: todos los carriles a la vez, con el carril AIgis (el último) más ancho. Móvil: un carril por pestaña.
 export function LaneGrid({ run, byLane }: { run: Run; byLane: Record<string, GEvent[]> }) {
   const lanes = LANE_ORDER.filter((l) => run.lanes[l]);
   return (
     <>
-      <div className="hidden gap-3 xl:grid xl:grid-cols-[1fr_1fr_1fr_2fr]">
+      <div
+        className="hidden gap-3 xl:grid"
+        style={{
+          gridTemplateColumns: lanes.map((l) => (l === "gemelo" ? "minmax(0,2fr)" : "minmax(0,1fr)")).join(" "),
+        }}
+      >
         {lanes.map((l) => (
           <LaneColumn key={l} run={run} lane={l} events={byLane[l] ?? []} />
         ))}

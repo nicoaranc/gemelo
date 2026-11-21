@@ -1,4 +1,4 @@
-import { ArrowRight, BellRing, Eye, Shield, ShieldOff, Split } from "lucide-react";
+import { ArrowRight, BellRing, Bot, Lock, Shield, ShieldOff, Split } from "lucide-react";
 import Link from "next/link";
 import { TwinDiagram } from "@/components/landing/twin-diagram";
 import { AigisWordmark } from "@/components/site/aigis-logo";
@@ -13,9 +13,15 @@ const LANES = [
     result: { tone: "leak" as const, text: "Filtra la llave real" },
   },
   {
-    icon: Eye,
-    name: "Monitor LLM",
-    how: "Haiku revisa cada comando antes de que corra.",
+    icon: Lock,
+    name: "Claude Code endurecido",
+    how: "Reglas deny sobre .env y sandbox nativo de Bash, como recomienda Anthropic.",
+    result: { tone: "warn" as const, text: "No lee .env, pero rompe tareas" },
+  },
+  {
+    icon: Bot,
+    name: "Auto mode",
+    how: "El clasificador de Anthropic revisa cada acción riesgosa antes de que corra.",
     result: { tone: "warn" as const, text: "Se puede engañar" },
   },
   {
@@ -78,14 +84,14 @@ export default function Home() {
       <section aria-labelledby="lanes" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h2 id="lanes" className="text-2xl font-semibold">
-            El mismo ataque contra cuatro defensas
+            El mismo ataque contra cinco defensas
           </h2>
           <p className="max-w-[65ch] text-muted-foreground">
-            En la demo, cada ataque corre en paralelo en cuatro carriles con Claude Code real, y se mide si filtró y si la tarea
+            En la demo, cada ataque corre en paralelo en cinco carriles con Claude Code real, y se mide si filtró y si la tarea
             igual quedó hecha.
           </p>
         </div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {LANES.map(({ icon: Icon, name, how, result }) => (
             <li
               key={name}

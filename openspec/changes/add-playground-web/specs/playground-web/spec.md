@@ -33,7 +33,7 @@ Lanzar una corrida en vivo SHALL requerir la sesión del panel. La web MUST deci
 - **THEN** se crea la corrida y la web navega a `/runs/{id}`
 
 ### Requirement: Vista de corrida en vivo
-La vista `/runs/{id}` SHALL mostrar los 4 carriles y sus 5 cajas actualizándose con los eventos del stream, y MUST reconectar después de un corte sin perder ni duplicar eventos.
+La vista `/runs/{id}` SHALL mostrar todos los carriles de la corrida y sus cajas actualizándose con los eventos del stream, y MUST reconectar después de un corte sin perder ni duplicar eventos.
 
 #### Scenario: Carriles en vivo
 - **WHEN** una corrida está en curso
