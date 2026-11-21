@@ -1,0 +1,1 @@
+"""Decodificadores de payloads exfiltrados."""

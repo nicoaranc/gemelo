@@ -1,0 +1,11 @@
+services:
+  api:
+    build: ./services/api
+    env_file: .env
+    ports: ["8000:8000"]
+  attacker:
+    build: ./services/attacker
+    env_file: .env
+  web:
+    build: ./apps/web
+    ports: ["3000:3000"]

@@ -1,0 +1,1 @@
+"""Carril sin defensa (baseline)."""
