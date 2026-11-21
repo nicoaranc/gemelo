@@ -1,0 +1,7 @@
+[
+ {
+  "id": "prueba-fake",
+  "title": "Prueba con el provider fake (no es una corrida real)",
+  "test": true
+ }
+]
