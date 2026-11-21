@@ -37,7 +37,13 @@ def create_app(
         prov = provider or get_provider(settings.sandbox_provider)
         gw = gateway or (StubGateway() if settings.gateway_stub
                          else HttpGateway(settings.gateway_url, settings.gateway_admin_token))
-        orch = Orchestrator(settings, prov, gw, store or MemoryStore())
+        st = store
+        if st is None and settings.database_url:
+            from .store_pg import PostgresStore
+
+            st = PostgresStore(settings.database_url)
+            await st.open()
+        orch = Orchestrator(settings, prov, gw, st or MemoryStore())
         ensure = getattr(prov, "ensure_infra", None)
         if ensure:
             await ensure()
@@ -53,6 +59,9 @@ def create_app(
         app.state.orch = orch
         yield
         await orch.stop()
+        close = getattr(orch.store, "close", None)
+        if close and store is None:
+            await close()
 
     app = FastAPI(title="Gemelo orquestador", lifespan=lifespan)
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
@@ -72,6 +81,16 @@ def create_app(
         if rc is None:
             raise HTTPException(404, "corrida no encontrada")
         return rc
+
+    async def get_run_obj(request: Request, run_id: str):
+        """Corrida viva si está en este proceso; si no, la guardada (p. ej. tras un reinicio)."""
+        rc = orch(request).contexts.get(run_id)
+        if rc is not None:
+            return rc.run
+        run = await orch(request).store.get_run(run_id)
+        if run is None:
+            raise HTTPException(404, "corrida no encontrada")
+        return run
 
     @app.get("/health")
     async def health(request: Request):
@@ -100,7 +119,7 @@ def create_app(
 
     @app.get("/runs/{run_id}")
     async def get_run(run_id: str, request: Request):
-        return get_ctx(request, run_id).run.public()
+        return (await get_run_obj(request, run_id)).public()
 
     @app.post("/runs/{run_id}/cancel", dependencies=[Depends(require_token)])
     async def cancel_run(run_id: str, request: Request):
@@ -111,10 +130,10 @@ def create_app(
     async def events(run_id: str, request: Request, after: int = 0, follow: bool = True,
                      last_event_id: str | None = Header(default=None)):
         o = orch(request)
-        rc = get_ctx(request, run_id)
+        run = await get_run_obj(request, run_id)
         if last_event_id and last_event_id.isdigit():
             after = max(after, int(last_event_id))
-        finished = rc.run.status in ("done", "failed", "cancelled")
+        finished = run.status in ("done", "failed", "cancelled") or run_id not in o.contexts
 
         async def gen():
             yield "retry: 2000\n\n"
@@ -129,12 +148,12 @@ def create_app(
 
     @app.get("/runs/{run_id}/lanes/{lane}/diff", response_class=PlainTextResponse)
     async def lane_diff(run_id: str, lane: str, request: Request):
-        rc = get_ctx(request, run_id)
+        run = await get_run_obj(request, run_id)
         role = "alto" if lane == "gemelo" else "unico"
         diff = await orch(request).store.get_diff(run_id, lane, role)
         if diff is None:
             raise HTTPException(404, "sin diff")
-        res = rc.run.lanes[lane].result if lane in rc.run.lanes else None
+        res = run.lanes[lane].result if lane in run.lanes else None
         if lane == "gemelo" and res is not None and not res.delivered:
             raise HTTPException(409, f"diff no entregado: {res.verdict}")
         return orch(request).redact(run_id, diff)
