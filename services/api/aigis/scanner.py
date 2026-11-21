@@ -1,6 +1,6 @@
 """Búsqueda de secretos conocidos en texto, con sus codificaciones (decisión D3).
 
-Lo usan el escaneo del diff del gemelo alto, FIDES (salida de herramientas),
+Lo usan el escaneo del diff del gemelo bajo, FIDES (salida de herramientas),
 la atribución de lo que llega al atacante y el redactor de eventos.
 
 Cubre: claro, base64 estándar y url-safe (con y sin padding, tres alineaciones),

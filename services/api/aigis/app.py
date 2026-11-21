@@ -1,7 +1,7 @@
 """API HTTP del orquestador.
 
 Correr en local:
-    cd services/api && .venv/Scripts/python -m uvicorn gemelo.app:app --port 8000
+    cd services/api && .venv/Scripts/python -m uvicorn aigis.app:app --port 8000
 """
 
 from __future__ import annotations
@@ -63,12 +63,13 @@ def create_app(
         if close and store is None:
             await close()
 
-    app = FastAPI(title="Gemelo orquestador", lifespan=lifespan)
+    app = FastAPI(title="AIgis orquestador", lifespan=lifespan)
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 
     def require_token(authorization: str = Header(default="")) -> None:
-        """Lanzar o cancelar corridas gasta crédito: con GEMELO_API_TOKEN definido se exige."""
+        """Con AIGIS_API_TOKEN definido se exige en toda la API pública salvo /health: lanzar gasta
+        crédito y leer muestra payloads de ataque, eventos y diffs. El panel web lo agrega en su proxy."""
         if settings.api_token and not hmac.compare_digest(authorization.removeprefix("Bearer ").strip(),
                                                           settings.api_token):
             raise HTTPException(401, "token inválido")
@@ -98,7 +99,7 @@ def create_app(
         return {"ok": True, "provider": o.provider.name, "gateway_ok": await o.gateway.health(),
                 "agent": settings.agent, "lanes": settings.lane_list}
 
-    @app.get("/tasks")
+    @app.get("/tasks", dependencies=[Depends(require_token)])
     async def tasks(request: Request):
         return [t.public() for t in orch(request).tasks.values()]
 
@@ -112,12 +113,12 @@ def create_app(
             raise HTTPException(422, str(e)) from e
         return {"run_id": r.id, "queue_position": r.queue_position}
 
-    @app.get("/runs")
+    @app.get("/runs", dependencies=[Depends(require_token)])
     async def list_runs(request: Request, limit: int = 50):
         runs = await orch(request).store.list_runs(limit)
         return [r.public() for r in runs]
 
-    @app.get("/runs/{run_id}")
+    @app.get("/runs/{run_id}", dependencies=[Depends(require_token)])
     async def get_run(run_id: str, request: Request):
         return (await get_run_obj(request, run_id)).public()
 
@@ -126,7 +127,7 @@ def create_app(
         get_ctx(request, run_id)
         return {"cancelled": await orch(request).cancel(run_id)}
 
-    @app.get("/runs/{run_id}/events")
+    @app.get("/runs/{run_id}/events", dependencies=[Depends(require_token)])
     async def events(run_id: str, request: Request, after: int = 0, follow: bool = True,
                      last_event_id: str | None = Header(default=None)):
         o = orch(request)
@@ -146,19 +147,19 @@ def create_app(
         return StreamingResponse(gen(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
-    @app.get("/runs/{run_id}/lanes/{lane}/diff", response_class=PlainTextResponse)
+    @app.get("/runs/{run_id}/lanes/{lane}/diff", response_class=PlainTextResponse, dependencies=[Depends(require_token)])
     async def lane_diff(run_id: str, lane: str, request: Request):
         run = await get_run_obj(request, run_id)
-        role = "alto" if lane == "gemelo" else "unico"
+        role = "bajo" if lane == "gemelo" else "unico"
         diff = await orch(request).store.get_diff(run_id, lane, role)
         if diff is None:
             raise HTTPException(404, "sin diff")
         res = run.lanes[lane].result if lane in run.lanes else None
         if lane == "gemelo" and res is not None and not res.delivered:
             raise HTTPException(409, f"diff no entregado: {res.verdict}")
-        return orch(request).redact(run_id, diff)
+        return await orch(request).redact_persisted(run_id, diff)
 
-    @app.get("/queue")
+    @app.get("/queue", dependencies=[Depends(require_token)])
     async def queue(request: Request):
         return orch(request).queue()
 
@@ -200,9 +201,9 @@ def create_app(
             raise HTTPException(401, "firma inválida")
 
     @app.post("/webhooks/attacker")
-    async def attacker_hook(request: Request, x_gemelo_signature: str = Header(default="")):
+    async def attacker_hook(request: Request, x_aigis_signature: str = Header(default="")):
         body = await request.body()
-        check_sig(body, x_gemelo_signature)
+        check_sig(body, x_aigis_signature)
         data = json.loads(body or b"{}")
         raw = str(data.get("raw", ""))
         at = float(data.get("received_at") or time.time())
@@ -231,7 +232,7 @@ def create_app(
         await o.handle_egress(await request.json())
         return {"ok": True}
 
-    @app.get("/dev/sandboxes")
+    @app.get("/dev/sandboxes", dependencies=[Depends(require_token)])
     async def dev_sandboxes(request: Request):
         if not settings.dev:
             raise HTTPException(404)

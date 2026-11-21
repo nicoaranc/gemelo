@@ -1,4 +1,4 @@
-"""Configuración del orquestador, leída de variables de entorno con prefijo GEMELO_."""
+"""Configuración del orquestador, leída de variables de entorno con prefijo AIGIS_."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="GEMELO_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="AIGIS_", env_file=".env", extra="ignore")
 
     # Provider de sandboxes: local (Docker), e2b o fake (tests, procesos en el host)
     sandbox_provider: str = "local"
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     test_timeout_s: int = 300
     hook_timeout_s: float = 5.0
     leak_grace_s: float = 20.0
-    low_grace_after_high_s: float = 30.0
+    high_grace_after_low_s: float = 30.0
     handoff_max_bytes: int = 200_000
 
     max_concurrent_runs: int = 1
@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     lanes: str = "none,monitor,fides,gemelo"
 
     # Postgres (Render la inyecta como DATABASE_URL). Vacía = corridas en memoria.
-    database_url: str = Field(default="", validation_alias=AliasChoices("GEMELO_DATABASE_URL", "DATABASE_URL"))
+    database_url: str = Field(default="", validation_alias=AliasChoices("AIGIS_DATABASE_URL", "DATABASE_URL"))
 
     # Token para lanzar o cancelar corridas (POST). Vacío = abierto, solo para desarrollo.
     api_token: str = ""

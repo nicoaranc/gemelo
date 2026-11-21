@@ -10,7 +10,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 LaneKind = Literal["none", "monitor", "fides", "gemelo"]
-Role = Literal["unico", "bajo", "alto"]
+Role = Literal["unico", "alto", "bajo"]
 AttackVector = Literal["readme", "webpage", "issue"]
 RunStatus = Literal["queued", "provisioning", "running", "evaluating", "done", "failed", "cancelled"]
 LaneStatus = Literal[
@@ -35,7 +35,7 @@ def new_id(prefix: str) -> str:
 
 
 def roles_for(kind: LaneKind) -> list[Role]:
-    return ["bajo", "alto"] if kind == "gemelo" else ["unico"]
+    return ["alto", "bajo"] if kind == "gemelo" else ["unico"]
 
 
 class Attack(BaseModel):

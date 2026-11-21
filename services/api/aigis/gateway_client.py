@@ -7,7 +7,7 @@ Contrato que el orquestador espera del gateway (decisión D4, design de add-mode
   GET    /admin/tokens/{token}/usage -> {cost_usd, by_lane: {"<lane>/<role>": {cost_usd, input_tokens, output_tokens}}}
   POST   /v1/messages             proxy a Anthropic, auth con el token de corrida
 
-El token es por corrida. Carril y gemelo viajan en el header `X-Gemelo-Lane`
+El token es por corrida. Carril y gemelo viajan en el header `X-Aigis-Lane`
 (`<lane>/<role>`), que el orquestador fija en cada caja.
 """
 
@@ -55,7 +55,7 @@ class HttpGateway:
                        max_tokens: int = 300) -> str:
         r = await self.http.post(
             f"{self.base}/v1/messages",
-            headers={"x-api-key": token, "anthropic-version": "2023-06-01", "X-Gemelo-Lane": lane},
+            headers={"x-api-key": token, "anthropic-version": "2023-06-01", "X-Aigis-Lane": lane},
             json={"model": model, "max_tokens": max_tokens, "system": system,
                   "messages": [{"role": "user", "content": user}]},
         )

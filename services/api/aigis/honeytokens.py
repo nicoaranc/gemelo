@@ -1,8 +1,8 @@
 """Generación y registro de secretos por caja.
 
-- Pool A (honeytokens): solo para el gemelo bajo. Si existe `secrets/canaries.json`
+- Pool A (honeytokens): solo para el gemelo alto. Si existe `secrets/canaries.json`
   (P3, ignorado por git) se toman canary tokens de ahí; si no, se generan propios.
-- Pool B (sintéticos): para el gemelo alto y los carriles de una caja. Formato real,
+- Pool B (sintéticos): para el gemelo bajo y los carriles de una caja. Formato real,
   valor falso. Nunca credenciales reales (D2).
 
 Cada caja recibe valores únicos, así cualquier aparición se atribuye a una sola
@@ -97,7 +97,7 @@ class SecretRegistry:
         return None
 
     def assign(self, run_id: str, lane: LaneKind, role: Role, spec: list[tuple[str, str]]) -> list[SecretRef]:
-        pool: Pool = "A" if role == "bajo" else "B"
+        pool: Pool = "A" if role == "alto" else "B"
         refs = []
         for env_name, kind in spec:
             canary = self._take_canary(env_name, kind) if pool == "A" else None
