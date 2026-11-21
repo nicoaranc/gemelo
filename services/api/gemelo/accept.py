@@ -50,7 +50,8 @@ async def evaluate(orch: Orchestrator, rc: RunCtx, lane: str, role: str) -> Acce
     await orch.bus.emit(rc.run.id, "lane.status", {"status": "testing"}, lane=lane, role=role, mode=mode)
 
     acc.diff = await take_diff(orch, rc, lane, role)
-    await orch.store.save_diff(rc.run.id, lane, role, acc.diff)
+    # El store nunca guarda el diff en crudo: el escáner usa acc.diff, la base la versión redactada
+    await orch.store.save_diff(rc.run.id, lane, role, orch.redact(rc.run.id, acc.diff))
 
     # Tests sin internet: un test escrito por el agente no puede exfiltrar
     if box.network != "gateway_only":

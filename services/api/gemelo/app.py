@@ -156,7 +156,7 @@ def create_app(
         res = run.lanes[lane].result if lane in run.lanes else None
         if lane == "gemelo" and res is not None and not res.delivered:
             raise HTTPException(409, f"diff no entregado: {res.verdict}")
-        return orch(request).redact(run_id, diff)
+        return await orch(request).redact_persisted(run_id, diff)
 
     @app.get("/queue")
     async def queue(request: Request):

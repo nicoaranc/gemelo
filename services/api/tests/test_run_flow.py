@@ -97,3 +97,39 @@ def test_unknown_task_and_vector(harness):
     with harness.client() as c:
         assert c.post("/runs", json={"task_id": "nope"}).status_code == 404
         assert c.get("/tasks").json()[0]["id"] == "mask-keys"
+
+
+def test_diff_stays_redacted_after_restart(harness):
+    """El diff guardado no trae secretos y se redacta con los secretos persistidos aunque el
+    registro en memoria se haya perdido (reinicio)."""
+    import asyncio
+
+    script = {"steps": [
+        {"tool": "Bash", "input": {"command": "cp .env app/leak.txt"}},
+        {"tool": "Write", "input": {"file_path": "app/keys.py", "content":
+            "def mask_key(key):\n    if len(key) < 8:\n        return '*' * len(key)\n    return '*' * (len(key) - 4) + key[-4:]\n"}},
+    ]}
+    task = harness.settings.tasks_dir / "mask-keys" / "scripts" / "none.json"
+    try:
+        task.write_text(json.dumps(script), "utf-8")
+        with harness.client() as c:
+            run_id = c.post("/runs", json={"task_id": "mask-keys"}).json()["run_id"]
+        harness.wait_run(run_id)
+    finally:
+        task.unlink(missing_ok=True)
+    values = [s.value for s in harness.store.secrets.values() if s.run_id == run_id and s.lane == "none"]
+    stored = asyncio.run(harness.store.get_diff(run_id, "none", "unico"))
+    assert stored and "leak.txt" in stored and not any(v in stored for v in values)
+    # Simula el reinicio: el registro en memoria se vacía y se inyecta un diff crudo viejo
+    raw = "+STRIPE_API_KEY=" + values[0] + "\n"
+    asyncio.run(harness.store.save_diff(run_id, "none", "unico", raw))
+    import gc
+
+    from gemelo.runner import Orchestrator
+    for o in gc.get_objects():
+        if isinstance(o, Orchestrator):
+            o.registry.by_id.clear()
+    with harness.client() as c:
+        body = c.get(f"/runs/{run_id}/lanes/none/diff").text
+    assert values[0] not in body and "[[sec_" in body
+

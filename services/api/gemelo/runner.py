@@ -82,6 +82,12 @@ class Orchestrator:
     def redact(self, run_id: str, text: str) -> str:
         return scanner.redact(text, self.registry.pairs())
 
+    async def redact_persisted(self, run_id: str, text: str) -> str:
+        """Redacta también con los secretos guardados de la corrida: sirve tras un reinicio,
+        cuando el registro en memoria ya no los tiene."""
+        pairs = self.registry.pairs() + [(x.id, x.value) for x in await self.store.secrets_for_run(run_id)]
+        return scanner.redact(text, pairs)
+
     async def emit(self, rc: RunCtx, type: str, data: dict[str, Any] | None = None, **kw) -> None:
         await self.bus.emit(rc.run.id, type, data, mode=rc.run.mode, **kw)
 
