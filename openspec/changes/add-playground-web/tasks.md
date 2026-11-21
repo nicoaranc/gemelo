@@ -15,6 +15,7 @@
 - [x] 3.1 Construir los componentes de la vista de corrida (carriles, cajas, atacante, alerta de canary, resultados, filtraciones, diff, log); verificar el escenario de filtración de un honeytoken
 - [x] 3.2 Construir `/ataca`, `/replay` y `/replay/[id]`; verificar los escenarios de visitante sin sesión, índice de grabaciones y API apagada
 - [x] 3.3 Implementar el modo en vivo y `/runs/[id]`; verificar los escenarios de carriles en vivo, reconexión y canary después del fin
+  - Verificados carriles en vivo y canary después del fin. **Falta verificar la reconexión**: en local, sin Postgres, la API pierde la corrida al reiniciarse; probarla con `DATABASE_URL` o en Render.
 - [ ] 3.4 Exportar al menos una corrida real a `public/replays/`; verificar que no contiene valores del pool B
 
 ## 4. Panel, landing y resultados
