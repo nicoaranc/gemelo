@@ -164,7 +164,7 @@ export function RunView({
       <AttackerPanel leaks={leaks} />
       <section className="rounded-xl border bg-card p-4">
         <Tabs defaultValue="resultados">
-          <TabsList className="flex-wrap">
+          <TabsList className="max-w-full justify-start overflow-x-auto">
             <TabsTrigger value="resultados">Resultados</TabsTrigger>
             <TabsTrigger value="filtraciones">Filtraciones{leaks.length ? ` (${leaks.length})` : ""}</TabsTrigger>
             <TabsTrigger value="diff">Diff</TabsTrigger>

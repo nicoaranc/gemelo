@@ -32,8 +32,8 @@ eval:
 	python eval/run_eval.py
 
 # Exporta una corrida terminada a apps/web/public/replays/ para reproducirla sin API.
-# Uso: make export-run RUN=<run_id> [WAIT=2m] [ID=nombre] [TITLE="..."]
+# Uso: make export-run RUN=<run_id> [WAIT=2m] [ID=nombre] [TITLE="..."] [TEST=1]
 export-run:
 	@test -n "$(RUN)" || (echo "falta RUN=<run_id>" && exit 2)
 	cd apps/web && node scripts/export-run.mjs $(RUN) \
-		$(if $(WAIT),--wait $(WAIT)) $(if $(ID),--id $(ID)) $(if $(TITLE),--title "$(TITLE)")
+		$(if $(WAIT),--wait $(WAIT)) $(if $(ID),--id $(ID)) $(if $(TITLE),--title "$(TITLE)") $(if $(TEST),--test)

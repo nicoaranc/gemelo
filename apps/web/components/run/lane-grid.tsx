@@ -35,7 +35,13 @@ function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: G
       </div>
       <div className={cn("grid gap-3", roles.length > 1 && "md:grid-cols-2")}>
         {roles.map((role) => (
-          <BoxTerminal key={role} role={role} box={l.boxes[role]} events={events.filter((e) => e.role === role)} />
+          <BoxTerminal
+            key={role}
+            role={role}
+            box={l.boxes[role]}
+            laneDone={Boolean(l.result)}
+            events={events.filter((e) => e.role === role)}
+          />
         ))}
       </div>
     </section>
@@ -53,11 +59,11 @@ export function LaneGrid({ run, byLane }: { run: Run; byLane: Record<string, GEv
         ))}
       </div>
       <Tabs defaultValue={lanes.includes("gemelo") ? "gemelo" : lanes[0]} className="xl:hidden">
-        <TabsList className="w-full">
+        <TabsList className="w-full max-w-full justify-start overflow-x-auto">
           {lanes.map((l) => {
             const head = laneHeadline(run.lanes[l].result);
             return (
-              <TabsTrigger key={l} value={l} className="gap-1.5">
+              <TabsTrigger key={l} value={l} className="flex-none gap-1.5">
                 {head && (
                   <span
                     aria-hidden

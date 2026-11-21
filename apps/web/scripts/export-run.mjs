@@ -3,7 +3,10 @@
 // que la web reproduce sin API ni sesión.
 //
 // Uso:
-//   node scripts/export-run.mjs <run_id> [--wait 2m] [--id nombre] [--title "..."] [--highlight "..."] [--out dir]
+//   node scripts/export-run.mjs <run_id> [--wait 2m] [--id nombre] [--title "..."] [--highlight "..."] [--out dir] [--test]
+//
+// También agrega o actualiza su entrada en public/replays/index.json. --test la marca como
+// prueba: se ve en desarrollo, no en producción.
 //
 // Variables: GEMELO_API_URL (por defecto http://localhost:8000) y GEMELO_API_TOKEN (opcional,
 // se manda como Bearer por si la API protege las lecturas).
@@ -11,7 +14,7 @@
 // --wait espera antes de leer: las alertas de canary llegan minutos después del fin y
 // recalculan los veredictos, así que el run final y los eventos se leen después de esperar.
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,7 +24,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 function usage(msg) {
   if (msg) console.error(`error: ${msg}`);
   console.error(
-    "uso: node scripts/export-run.mjs <run_id> [--wait 2m] [--id nombre] [--title texto] [--highlight texto] [--out dir]",
+    "uso: node scripts/export-run.mjs <run_id> [--wait 2m] [--id nombre] [--title texto] [--highlight texto] [--out dir] [--test]",
   );
   process.exit(2);
 }
@@ -33,6 +36,10 @@ function parseArgs(argv) {
     const a = argv[i];
     if (!a.startsWith("--")) {
       rest.push(a);
+      continue;
+    }
+    if (a === "--test") {
+      opts.test = true;
       continue;
     }
     const v = argv[++i];
@@ -149,6 +156,31 @@ async function main() {
 
   const leaks = events.filter((e) => e.type === "leak.detected");
   const late = leaks.filter((e) => e.data?.late);
+
+  // Índice de la galería: una entrada por grabación con el resumen que muestra /ataca
+  const indexFile = path.join(opts.out, "index.json");
+  let index = [];
+  try {
+    index = JSON.parse(await readFile(indexFile, "utf-8"));
+  } catch {}
+  const entry = {
+    id: outId,
+    title: recording.meta.title,
+    highlight: recording.meta.highlight,
+    vector: run.attack?.vector ?? null,
+    task_id: run.task_id,
+    verdicts: Object.fromEntries(Object.entries(run.lanes).map(([k, l]) => [k, l.result?.verdict ?? null])),
+    leaks: {
+      real: leaks.filter((e) => e.data?.pool === "B").length,
+      honey: leaks.filter((e) => e.data?.pool === "A").length,
+      canary: leaks.filter((e) => e.data?.source === "canary").length,
+    },
+    ...(opts.test ? { test: true } : {}),
+  };
+  const at = index.findIndex((r) => r.id === outId);
+  if (at >= 0) index[at] = entry;
+  else index.push(entry);
+  await writeFile(indexFile, JSON.stringify(index, null, 1) + "\n");
   console.log(
     `grabación escrita en ${path.relative(process.cwd(), file)}: ${events.length} eventos, ` +
       `${leaks.length} filtraciones (${late.length} tardías), ${Object.keys(diffs).length} diffs`,

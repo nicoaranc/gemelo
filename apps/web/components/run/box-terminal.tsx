@@ -11,7 +11,17 @@ import { EventLine } from "./event-line";
 // Eventos que no aportan en la terminal de una caja (siguen en el log completo)
 const HIDDEN = new Set(["tool.post", "lane.status"]);
 
-export function BoxTerminal({ role, box, events }: { role: string; box?: Box; events: GEvent[] }) {
+export function BoxTerminal({
+  role,
+  box,
+  events,
+  laneDone = false,
+}: {
+  role: string;
+  box?: Box;
+  events: GEvent[];
+  laneDone?: boolean;
+}) {
   const feed = useRef<HTMLDivElement>(null);
   const [follow, setFollow] = useState(true);
   const visible = events.filter((e) => !HIDDEN.has(e.type));
@@ -36,7 +46,7 @@ export function BoxTerminal({ role, box, events }: { role: string; box?: Box; ev
           <div className="text-sm font-semibold">{label.title}</div>
           <div className="text-xs text-muted-foreground">{label.detail}</div>
         </div>
-        {box && <StatusBadge s={box.status} />}
+        {box && <StatusBadge s={laneDone ? "done" : box.status} />}
       </div>
       {box && (
         <div className="flex flex-wrap gap-1.5 border-b px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
