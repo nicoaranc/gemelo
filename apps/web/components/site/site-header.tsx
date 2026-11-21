@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/", label: "Cómo funciona" },
+  { href: "/", label: "Inicio" },
+  { href: "/demo", label: "Cómo funciona" },
   { href: "/ataca", label: "Ataca" },
   { href: "/resultados", label: "Resultados" },
   { href: "/panel", label: "Panel del equipo" },
