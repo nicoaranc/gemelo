@@ -7,8 +7,8 @@
 
 ## 2. Interfaz y fábrica
 
-- [ ] 2.1 Definir la interfaz `SandboxProvider` y los perfiles de red (`open`, `isolated(allowlist)`, `gateway_only`) en `providers/__init__.py`; verificar con un test que la fábrica devuelve el proveedor según `SANDBOX_PROVIDER` y falla con un valor inválido
-- [ ] 2.2 Agregar `SANDBOX_PROVIDER` y `E2B_API_KEY` a `.env.example` con comentarios; verificar que el archivo no contiene valores reales
+- [x] 2.1 Definir la interfaz `SandboxProvider` y los perfiles de red (`open`, `isolated(allowlist)`, `gateway_only`) en `providers/__init__.py`; verificar con un test que la fábrica devuelve el proveedor según `SANDBOX_PROVIDER` y falla con un valor inválido
+- [x] 2.2 Agregar `SANDBOX_PROVIDER` y `E2B_API_KEY` a `.env.example` con comentarios; verificar que el archivo no contiene valores reales
 
 ## 3. Proveedor local
 

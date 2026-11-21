@@ -20,6 +20,12 @@ Ver proposal.md (Why). Render no permite contenedores privilegiados ni Docker de
 
 **Interfaz `SandboxProvider`.** Operaciones: `create(template, task_repo, network) -> Sandbox`, `exec(sandbox, cmd) -> stream`, `read_file`, `git_diff`, `set_network(sandbox, profile)`, `destroy`. Se elige con una fábrica que lee `SANDBOX_PROVIDER`. Alternativa descartada: un adaptador por carril; duplicaría la lógica de red.
 
+**Decisiones de la interfaz que no están en el memo** (tomadas al implementar el grupo 2):
+- Si `SANDBOX_PROVIDER` no está definida o está vacía, se usa `local`. El spec solo exige fallar con un valor inválido, y `local` es lo seguro para desarrollar.
+- Se agrega `destroy_run(run_id)`: destruye todos los sandboxes de una corrida por su etiqueta, para cumplir la limpieza garantizada aunque el proceso que los creó haya caído.
+- `exec` entrega eventos `ExecOutput` (stdout o stderr) y termina con un `ExecExit` con el código de salida.
+- La fábrica importa cada proveedor solo al elegirlo, para que en local no se necesite la key de E2B.
+
 **Perfiles de red como valores, no flags.** `open`, `isolated(allowlist)` y `gateway_only`. `gateway_only` es `isolated` con allowlist vacía y es el destino del corte en caliente de FIDES (D5).
 
 **Local: dos redes Docker.** `egress` (bridge normal) e `internal` (`internal: true`). El gateway está conectado a ambas. Un sandbox aislado solo se conecta a `internal`. Para el corte en caliente se desconecta el contenedor de `egress` y se conecta a `internal` (`docker network disconnect/connect`), lo que no reinicia el contenedor. La allowlist en local se resuelve con un proxy de salida en la red `internal` que solo reenvía a los dominios permitidos. Alternativa descartada: iptables dentro del contenedor, porque el agente podría modificarlas si tiene privilegios.

@@ -21,6 +21,13 @@ No hace falta instalar Python 3.12 a mano: `uv` lo descarga solo para el proyect
 - Si `uv` se instaló con `pip install --user`, agregar al `Path` de usuario la carpeta `%APPDATA%\Python\Python3XX\Scripts`. Revisar que la entrada no quede con espacios al inicio.
 - Después de cambiar el `Path`, reiniciar la terminal (y el editor).
 - Docker Desktop tiene que estar abierto para usar `docker` y correr los tests.
+- El repo fuerza finales de línea LF (`.gitattributes`), porque los scripts se copian a contenedores Linux y con CRLF fallan (`bash\r: not found`). Si clonaste antes del commit que agregó `.gitattributes`, tu copia de trabajo puede seguir en CRLF. Con todo commiteado, corre una vez:
+
+  ```bash
+  git rm --cached -r . && git reset --hard
+  ```
+
+  Para revisar que no quede ningún archivo en CRLF: `git ls-files --eol | grep w/crlf` no debería mostrar nada.
 
 ## 2. Primer setup
 
