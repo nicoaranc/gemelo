@@ -138,17 +138,17 @@ def test_files_and_cleanup(provider):
 
 
 def test_boxes_cannot_reach_each_other(provider):
-    """El alto no puede pasarle datos al bajo (que tiene internet) ni las cajas abiertas verse entre sí."""
+    """El bajo no puede pasarle datos al alto (que tiene internet) ni las cajas abiertas verse entre sí."""
     async def go():
-        low = await provider.create(_spec(NetworkProfile.open(), role="bajo"))
+        low = await provider.create(_spec(NetworkProfile.open(), role="alto"))
         other = await provider.create(_spec(NetworkProfile.open(), role="unico"))
-        high = await provider.create(_spec(NetworkProfile.isolated([]), role="alto"))
+        high = await provider.create(_spec(NetworkProfile.isolated([]), role="bajo"))
         try:
             await run(provider, low, ["sh", "-c", "nohup python3 -m http.server 8080 >/dev/null 2>&1 &"])
             await asyncio.sleep(1.5)
             ips = (await run(provider, low, ["hostname", "-I"])).stdout.split()
-            assert ips, "el bajo no tiene IPs"
-            # Control: el bajo se alcanza a sí mismo
+            assert ips, "el alto no tiene IPs"
+            # Control: el alto se alcanza a sí mismo
             assert (await _curl(provider, low, "http://127.0.0.1:8080/", "--noproxy", "*")).stdout == "200"
             for ip in ips:
                 for box in (high, other):

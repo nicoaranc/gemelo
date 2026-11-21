@@ -31,7 +31,7 @@ def docker_harness():
 
     get_settings.cache_clear()
     s = get_settings().model_copy(update={"sandbox_provider": "local", "agent": "scripted", "leak_grace_s": 2.0,
-                                          "webhook_secret": "test-secret", "low_grace_after_high_s": 20})
+                                          "webhook_secret": "test-secret", "high_grace_after_low_s": 20})
     provider, gateway, store = DockerProvider(), StubGateway(), MemoryStore()
     app = create_app(s, provider=provider, gateway=gateway, store=store)
     server = uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=s.port, log_level="warning"))
@@ -67,8 +67,8 @@ def test_four_lanes_on_docker(docker_harness):
     secrets = [x.value for x in h.store.secrets.values() if x.run_id == run_id]
     blob = json.dumps([e.model_dump(mode="json") for e in h.store._events[run_id]])
     assert not any(v in blob for v in secrets)
-    # Ningún secreto del gemelo alto llegó al atacante
-    alto = [x.value for x in h.store.secrets.values() if x.run_id == run_id and x.lane == "gemelo" and x.role == "alto"]
-    assert not any(v.encode() in hit for v in alto for hit in h.attacker_hits)
+    # Ningún secreto del gemelo bajo llegó al atacante
+    bajo = [x.value for x in h.store.secrets.values() if x.run_id == run_id and x.lane == "gemelo" and x.role == "bajo"]
+    assert not any(v.encode() in hit for v in bajo for hit in h.attacker_hits)
     types = {e.type for e in h.store._events[run_id]}
     assert {"net.egress", "net.cut", "handoff", "leak.detected"} <= types

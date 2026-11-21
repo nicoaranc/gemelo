@@ -1,1 +1,1 @@
-"""(Propuesta D1) Vigilante del gemelo alto."""
+"""(Propuesta D1) Vigilante del gemelo bajo."""

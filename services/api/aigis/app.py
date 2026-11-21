@@ -160,7 +160,7 @@ def create_app(
     @app.get("/runs/{run_id}/lanes/{lane}/diff", response_class=PlainTextResponse, dependencies=[Depends(require_token)])
     async def lane_diff(run_id: str, lane: str, request: Request):
         run = await get_run_obj(request, run_id)
-        role = "alto" if lane == "gemelo" else "unico"
+        role = "bajo" if lane == "gemelo" else "unico"
         diff = await orch(request).store.get_diff(run_id, lane, role)
         if diff is None:
             raise HTTPException(404, "sin diff")

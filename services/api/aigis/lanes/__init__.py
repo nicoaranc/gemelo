@@ -82,7 +82,7 @@ async def report_net_failure(ctx: HookCtx, tool: str, tool_input: dict, tool_res
 def get_defense(kind: str, role: str, *, scripted: bool = False, allow_domains: list[str] | None = None) -> Defense:
     from .claude_native import EmulatedAutoMode, EmulatedSandbox, NativeObserver
     from .fides import FidesDefense
-    from .gemelo import TwinHigh, TwinLow
+    from .gemelo import TwinLow, TwinHigh
     from .monitor import MonitorDefense
     from .none import NoDefense
 
@@ -97,5 +97,5 @@ def get_defense(kind: str, role: str, *, scripted: bool = False, allow_domains: 
     if kind == "fides":
         return FidesDefense()
     if kind == "gemelo":
-        return TwinLow() if role == "bajo" else TwinHigh()
+        return TwinHigh() if role == "alto" else TwinLow()
     raise ValueError(f"carril desconocido: {kind}")

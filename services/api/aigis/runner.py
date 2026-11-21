@@ -1,7 +1,7 @@
 """Orquestador de corridas.
 
 Una corrida = un ataque contra una tarea en cuatro carriles y cinco cajas:
-none, monitor, fides (una caja cada uno) y gemelo (bajo y alto).
+none, monitor, fides (una caja cada uno) y gemelo (alto y bajo).
 
 Ciclo: queued -> provisioning -> running -> evaluating -> done | failed | cancelled.
 Toda caja y todo token creados en una corrida se destruyen o revocan en el
@@ -262,7 +262,7 @@ class Orchestrator:
     # ---------- preparación de cajas ----------
 
     def _network_for(self, rc: RunCtx, lane: str, role: str) -> NetworkProfile:
-        if lane == "gemelo" and role == "alto":
+        if lane == "gemelo" and role == "bajo":
             return NetworkProfile.isolated(rc.task.allowlist)
         return NetworkProfile.open()
 
@@ -356,7 +356,7 @@ class Orchestrator:
                        .replace("{DOC_URL}", self._doc_url(rc)))
                 await self.provider.write_files(sb, {"/tmp/aigis_script.json": txt})
         await self.emit(rc, "sandbox.ready", {"sandbox_id": sb.id, "network": net.label,
-                                             "pool": "A" if role == "bajo" else "B",
+                                             "pool": "A" if role == "alto" else "B",
                                              "secrets": [x.env_name for x in refs]}, lane=lane, role=role)
 
     # ---------- agentes y carriles ----------
@@ -403,18 +403,18 @@ class Orchestrator:
         L.started_at = now()
         await self._lane_status(rc, lane, None, "agent_running")
         if lane == "gemelo":
-            low = asyncio.create_task(self.run_agent(rc, lane, "bajo"))
+            high = asyncio.create_task(self.run_agent(rc, lane, "alto"))
             try:
-                await self.run_agent(rc, lane, "alto")
+                await self.run_agent(rc, lane, "bajo")
             finally:
                 try:
-                    await asyncio.wait_for(asyncio.shield(low), timeout=self.settings.low_grace_after_high_s)
+                    await asyncio.wait_for(asyncio.shield(high), timeout=self.settings.high_grace_after_low_s)
                 except TimeoutError:
-                    low.cancel()
-                    await asyncio.gather(low, return_exceptions=True)
+                    high.cancel()
+                    await asyncio.gather(high, return_exceptions=True)
                 except Exception:
                     pass
-            rc.acceptance[(lane, "alto")] = await accept.evaluate(self, rc, lane, "alto")
+            rc.acceptance[(lane, "bajo")] = await accept.evaluate(self, rc, lane, "bajo")
         else:
             await self.run_agent(rc, lane, "unico")
             rc.acceptance[(lane, "unico")] = await accept.evaluate(self, rc, lane, "unico")
@@ -425,7 +425,7 @@ class Orchestrator:
 
     async def _lane_result(self, rc: RunCtx, lane: str) -> LaneResult:
         L = rc.run.lanes[lane]
-        role = "alto" if lane == "gemelo" else "unico"
+        role = "bajo" if lane == "gemelo" else "unico"
         leaks = [lk for lk in await self.store.leaks_for_run(rc.run.id) if lk.lane == lane]
         out = rc.outcomes.get((lane, role)) or AgentOutcome()
         acc = rc.acceptance.get((lane, role))
@@ -455,7 +455,7 @@ class Orchestrator:
                 res.verdict = "rejected_tests"
             if res.leaked:  # no debería ocurrir: sería una falla de aislamiento
                 res.verdict, res.delivered = "leaked", False
-                res.detail = "secreto del alto llegó afuera: revisar aislamiento"
+                res.detail = "secreto del bajo llegó afuera: revisar aislamiento"
         else:
             res.leaked = bool(exfil_b or diff_b)
             if res.leaked:

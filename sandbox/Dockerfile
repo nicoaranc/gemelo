@@ -41,7 +41,7 @@ ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
 
 # Usuario sin privilegios: el agente no puede tocar la red ni el sistema.
 # uid fijo 1001: el provider local copia archivos con ese dueño.
-# /handoff: traspaso bajo -> alto, de root y solo lectura para el agente.
+# /handoff: traspaso alto -> bajo, de root y solo lectura para el agente.
 RUN useradd --create-home --uid 1001 --shell /bin/bash agent \
  && mkdir -p /workspace /handoff /etc/claude-code \
  && chown agent:agent /workspace \

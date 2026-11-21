@@ -7,7 +7,7 @@ Topología (design de add-sandbox-provider):
                      proxy. Salen a internet pero no se ven entre ellas.
   aigis-proxy       contenedor en todas esas redes. Único puente. Política por IP de origen.
 
-Ninguna caja alcanza a otra: así el gemelo alto no puede pasarle un secreto al bajo
+Ninguna caja alcanza a otra: así el gemelo bajo no puede pasarle un secreto al alto
 (que sí tiene internet) por la red interna.
 
 Toda caja recibe HTTP(S)_PROXY hacia el proxy, así el gateway y los hooks del
