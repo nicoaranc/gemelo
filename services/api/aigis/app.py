@@ -18,6 +18,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
 
 from .config import Settings, get_settings
 from .gateway_client import GatewayClient, HttpGateway, StubGateway
+from .lanes.catalog import CATALOG
 from .models import RunRequest
 from .providers import SandboxProvider, get_provider
 from .runner import Orchestrator
@@ -102,6 +103,15 @@ def create_app(
     @app.get("/tasks", dependencies=[Depends(require_token)])
     async def tasks(request: Request):
         return [t.public() for t in orch(request).tasks.values()]
+
+    @app.get("/lanes")
+    async def lanes(request: Request):
+        """Catálogo de carriles con su configuración, fuentes y huecos conocidos."""
+        return {"default": settings.lane_list, "lanes": [s.public() for s in CATALOG.values()]}
+
+    @app.get("/attacks", dependencies=[Depends(require_token)])
+    async def attacks(request: Request):
+        return [a.public() for a in orch(request).attacks.values()]
 
     @app.post("/runs", status_code=201, dependencies=[Depends(require_token)])
     async def create_run(req: RunRequest, request: Request):
