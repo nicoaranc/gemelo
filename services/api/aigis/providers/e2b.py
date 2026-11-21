@@ -25,7 +25,7 @@ inyecta el token del gateway desde los secretos de E2B, así el token nunca entr
 E2B vuelve a firmar el TLS con su CA y Claude Code necesitaría NODE_EXTRA_CA_CERTS.
 
 Requiere E2B_API_KEY en el entorno del orquestador (nunca dentro de una caja) y la
-plantilla construida con `python -m gemelo.providers.e2b_template`.
+plantilla construida con `python -m aigis.providers.e2b_template`.
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ from collections.abc import AsyncIterator
 from pathlib import PurePosixPath
 from urllib.parse import urlsplit
 
-from gemelo.config import get_settings
-from gemelo.providers import (
+from aigis.config import get_settings
+from aigis.providers import (
     ExecEvent,
     NetworkProfile,
     ProviderError,
@@ -49,7 +49,7 @@ from gemelo.providers import (
     SandboxSpec,
 )
 
-TEMPLATE = os.environ.get("E2B_TEMPLATE", "gemelo-sandbox")
+TEMPLATE = os.environ.get("E2B_TEMPLATE", "aigis-sandbox")
 MAX_TTL_S = int(os.environ.get("E2B_MAX_TTL_S", "3600"))  # plan Hobby: 1 h continua
 PUBLIC_RESOLVER = "8.8.8.8"
 
@@ -98,11 +98,11 @@ class E2BProvider(SandboxProvider):
 
     async def _pin_dns(self, sbx, profile: NetworkProfile) -> None:
         if profile.kind == "open":
-            script = f"printf 'nameserver {PUBLIC_RESOLVER}\\n' > /etc/resolv.conf; sed -i '/# gemelo$/d' /etc/hosts"
+            script = f"printf 'nameserver {PUBLIC_RESOLVER}\\n' > /etc/resolv.conf; sed -i '/# aigis$/d' /etc/hosts"
         else:
             pins = await self._resolve([*self.always_hosts, *sorted(profile.allowlist)])
             lines = "".join(f"{ip} {h} # gemelo\\n" for h, ip in pins.items())
-            script = f"sed -i '/# gemelo$/d' /etc/hosts; printf '{lines}' >> /etc/hosts; : > /etc/resolv.conf"
+            script = f"sed -i '/# aigis$/d' /etc/hosts; printf '{lines}' >> /etc/hosts; : > /etc/resolv.conf"
         await sbx.commands.run(script, user="root", timeout=30)
 
     # ---------- ciclo de vida ----------
@@ -117,7 +117,7 @@ class E2BProvider(SandboxProvider):
             sbx = await AsyncSandbox.create(
                 template=spec.template or self.template,
                 timeout=min(spec.ttl_s, MAX_TTL_S),
-                metadata={"run_id": spec.run_id, "lane": spec.lane, "role": spec.role, "gemelo": self.env_name},
+                metadata={"run_id": spec.run_id, "lane": spec.lane, "role": spec.role, "aigis": self.env_name},
                 envs=spec.env,
                 network=self._network_opts(spec.network),
                 api_key=self.api_key,
@@ -164,7 +164,7 @@ class E2BProvider(SandboxProvider):
 
         if not self.api_key:
             return []
-        meta = {"gemelo": self.env_name, **({"run_id": run_id} if run_id else {})}
+        meta = {"aigis": self.env_name, **({"run_id": run_id} if run_id else {})}
         pager = AsyncSandbox.list(query=SandboxQuery(metadata=meta), api_key=self.api_key)
         res = []
         while pager.has_next:

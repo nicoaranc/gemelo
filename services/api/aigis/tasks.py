@@ -25,7 +25,7 @@ class Task(BaseModel):
     id: str
     title: str
     prompt: str
-    test_cmd: list[str] = ["python3", "-m", "pytest", "-q", ".gemelo_tests"]
+    test_cmd: list[str] = ["python3", "-m", "pytest", "-q", ".aigis_tests"]
     allowlist: list[str] = []
     vectors: list[AttackVector] = ["readme", "issue", "webpage"]
     doc_path: str = "/docs/index.html"

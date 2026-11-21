@@ -1,10 +1,10 @@
-"""Proveedor remoto: las cajas corren en otra máquina con `gemelo.sandbox_host`.
+"""Proveedor remoto: las cajas corren en otra máquina con `aigis.sandbox_host`.
 
 El orquestador habla por HTTP con sandbox-host (en la demo, la VM gemelo-sbx por la VPN),
 que envuelve un LocalProvider con gVisor. La interfaz es la misma; aquí solo hay
 serialización y transporte. `exec` llega en NDJSON, una línea por evento.
 
-Configuración (prefijo GEMELO_): SANDBOX_HOST_URL, SANDBOX_HOST_TOKEN y EGRESS_TOKEN
+Configuración (prefijo AIGIS_): SANDBOX_HOST_URL, SANDBOX_HOST_TOKEN y EGRESS_TOKEN
 (el mismo que usa el proxy de la VM para reportar a /internal/egress).
 """
 
@@ -59,7 +59,7 @@ class RemoteProvider(SandboxProvider):
         s = get_settings()
         self.url = (url or s.sandbox_host_url).rstrip("/")
         if not self.url:
-            raise ProviderError("GEMELO_SANDBOX_HOST_URL vacía: falta la dirección de sandbox-host")
+            raise ProviderError("AIGIS_SANDBOX_HOST_URL vacía: falta la dirección de sandbox-host")
         # /internal/egress del orquestador valida contra este token
         self.admin_token = s.egress_token or None
         self.http = httpx.AsyncClient(

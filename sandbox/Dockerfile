@@ -1,7 +1,7 @@
 # Plantilla del sandbox donde corre el agente (local con Docker; E2B parte del mismo archivo).
 # Contiene: Node 22, Claude Code, git, Python 3.12, pytest, curl y los hooks del agente.
 # No contiene ninguna API key ni credencial del orquestador: secretos y tokens se copian al crear cada caja.
-# Construir: make sandbox-image  (tag gemelo-sandbox:local)
+# Construir: make sandbox-image  (tag aigis-sandbox:local)
 
 # Una sola etapa: E2B construye plantillas desde Dockerfile pero no admite multi-stage
 # (docs.e2b.dev/template/base-image, "Multi-stage Dockerfiles are not supported").
@@ -47,11 +47,11 @@ RUN useradd --create-home --uid 1001 --shell /bin/bash agent \
  && chmod 755 /handoff
 
 # Hooks y agente con guion: de root y solo lectura para el agente
-COPY hooks/ /opt/gemelo/hooks/
-COPY scripted_agent.py /opt/gemelo/scripted_agent.py
+COPY hooks/ /opt/aigis/hooks/
+COPY scripted_agent.py /opt/aigis/scripted_agent.py
 # Política administrada: el agente no puede desactivar los hooks desde su ~/.claude
 COPY settings.json /etc/claude-code/managed-settings.json
-RUN chmod -R a+rX,go-w /opt/gemelo /etc/claude-code
+RUN chmod -R a+rX,go-w /opt/aigis /etc/claude-code
 
 USER agent
 WORKDIR /workspace

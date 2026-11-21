@@ -1,7 +1,7 @@
 """Traspaso unidireccional bajo -> alto (design de add-twin-execution).
 
 Dos fuentes, ambas del gemelo bajo:
-1. Lo que el bajo guarda en `/workspace/.gemelo/untrusted/`.
+1. Lo que el bajo guarda en `/workspace/.aigis/untrusted/`.
 2. La salida de sus herramientas web (WebFetch, WebSearch), que el orquestador
    recibe por el hook PostToolUse del bajo.
 
@@ -18,9 +18,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .runner import Orchestrator, RunCtx
 
-LOW_DIR = "/workspace/.gemelo/untrusted"
+LOW_DIR = "/workspace/.aigis/untrusted"
 HIGH_DIR = "/handoff"
-OPEN = "<<<GEMELO_UNTRUSTED"
+OPEN = "<<<AIGIS_UNTRUSTED"
 CLOSE = "<<<END_GEMELO_UNTRUSTED>>>"
 
 
@@ -51,7 +51,7 @@ async def deliver(orch: Orchestrator, rc: RunCtx, source: str, content: str, kin
 
 
 async def sync_dir(orch: Orchestrator, rc: RunCtx) -> list[str]:
-    """Copia archivos nuevos de .gemelo/untrusted/ del bajo al alto."""
+    """Copia archivos nuevos de .aigis/untrusted/ del bajo al alto."""
     lo = rc.sandbox("gemelo", "bajo")
     if lo is None:
         return []

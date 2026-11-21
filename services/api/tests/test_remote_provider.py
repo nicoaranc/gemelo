@@ -7,10 +7,10 @@ import asyncio
 import httpx
 import pytest
 
-from gemelo import sandbox_host
-from gemelo.providers import NetworkProfile, ProviderError, SandboxSpec, get_provider, run
-from gemelo.providers.fake import FakeProvider
-from gemelo.providers.remote import RemoteProvider, sb_from_dict, sb_to_dict
+from aigis import sandbox_host
+from aigis.providers import NetworkProfile, ProviderError, SandboxSpec, get_provider, run
+from aigis.providers.fake import FakeProvider
+from aigis.providers.remote import RemoteProvider, sb_from_dict, sb_to_dict
 
 TOKEN = "t-prueba"
 
@@ -32,7 +32,7 @@ def test_fabrica_devuelve_proveedor_remoto():
 def test_serializacion_ida_y_vuelta():
     spec = SandboxSpec(run_id="r1", lane="gemelo", role="high", network=NetworkProfile.isolated(["pypi.org"]),
                        env={"A": "1"}, labels={"x": "y"})
-    from gemelo.providers import Sandbox
+    from aigis.providers import Sandbox
 
     sb = Sandbox(id="abc", spec=spec, ip="10.0.0.2", network=NetworkProfile.gateway_only())
     back = sb_from_dict(sb_to_dict(sb))

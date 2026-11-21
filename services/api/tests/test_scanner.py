@@ -4,8 +4,8 @@ from urllib.parse import quote
 
 import pytest
 
-from gemelo import scanner
-from gemelo.honeytokens import GENERATORS, SecretRegistry
+from aigis import scanner
+from aigis.honeytokens import GENERATORS, SecretRegistry
 
 SECRET = "sk_live_" + "Ab3dE6gH9jK2mN5pQ8sT1vW4"
 PAIRS = [("sec_1", SECRET)]

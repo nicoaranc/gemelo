@@ -27,7 +27,7 @@ class FakeProvider(SandboxProvider):
     name = "fake"
 
     def __init__(self, root: Path | None = None, gateway_hosts: tuple[str, ...] = ()) -> None:
-        self.root = Path(root or tempfile.mkdtemp(prefix="gemelo-fake-"))
+        self.root = Path(root or tempfile.mkdtemp(prefix="aigis-fake-"))
         self.boxes: dict[str, Sandbox] = {}
         self.opt_dir = get_settings().sandbox_dir
         self.gateway_hosts = gateway_hosts
@@ -37,8 +37,8 @@ class FakeProvider(SandboxProvider):
         return self.root / sb.id
 
     def map_path(self, sb: Sandbox, path: str) -> Path:
-        if path.startswith("/opt/gemelo"):
-            return self.opt_dir / path[len("/opt/gemelo"):].lstrip("/")
+        if path.startswith("/opt/aigis"):
+            return self.opt_dir / path[len("/opt/aigis"):].lstrip("/")
         if path.startswith("/"):
             return self._box_root(sb) / path.lstrip("/")
         return self._box_root(sb) / "workspace" / path
@@ -66,7 +66,7 @@ class FakeProvider(SandboxProvider):
         for i, a in enumerate(cmd):
             if i == 0 and a in ("python3", "python"):
                 out.append(sys.executable)
-            elif a.startswith(("/workspace", "/opt/gemelo", "/handoff", "/tmp/")):
+            elif a.startswith(("/workspace", "/opt/aigis", "/handoff", "/tmp/")):
                 out.append(str(self.map_path(sb, a)))
             else:
                 out.append(a)
@@ -79,8 +79,8 @@ class FakeProvider(SandboxProvider):
         full_env = {k: v for k, v in os.environ.items() if k in _ENV_KEEP}
         full_env.update(sb.spec.env)
         full_env.update(env or {})
-        full_env["GEMELO_FAKE_ROOT"] = str(self._box_root(sb))
-        full_env["GEMELO_FAKE_NET_FILE"] = str(self._box_root(sb) / ".net.json")
+        full_env["AIGIS_FAKE_ROOT"] = str(self._box_root(sb))
+        full_env["AIGIS_FAKE_NET_FILE"] = str(self._box_root(sb) / ".net.json")
         full_env["PYTHONIOENCODING"] = "utf-8"
         proc = await asyncio.create_subprocess_exec(
             *self._map_cmd(sb, cmd), cwd=str(self.map_path(sb, cwd)), env=full_env,

@@ -23,11 +23,11 @@ pytestmark = pytest.mark.docker
 
 @pytest.fixture(scope="module")
 def docker_harness():
-    from gemelo.app import create_app
-    from gemelo.config import get_settings
-    from gemelo.gateway_client import StubGateway
-    from gemelo.providers.local import DockerProvider
-    from gemelo.store import MemoryStore
+    from aigis.app import create_app
+    from aigis.config import get_settings
+    from aigis.gateway_client import StubGateway
+    from aigis.providers.local import DockerProvider
+    from aigis.store import MemoryStore
 
     get_settings.cache_clear()
     s = get_settings().model_copy(update={"sandbox_provider": "local", "agent": "scripted", "leak_grace_s": 2.0,

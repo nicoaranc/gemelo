@@ -1,7 +1,7 @@
 .PHONY: up down test test-docker eval sandbox-image api gateway
 
-SANDBOX_IMAGE ?= gemelo-sandbox:local
-PROXY_IMAGE ?= gemelo-proxy:dev
+SANDBOX_IMAGE ?= aigis-sandbox:local
+PROXY_IMAGE ?= aigis-proxy:dev
 
 # Imágenes del provider local: sandbox (Claude Code + hooks) y proxy de salida
 sandbox-image:
@@ -14,13 +14,13 @@ up:
 down:
 	docker compose down
 
-# Orquestador en local. GEMELO_SANDBOX_PROVIDER=local usa Docker; fake no aísla nada.
+# Orquestador en local. AIGIS_SANDBOX_PROVIDER=local usa Docker; fake no aísla nada.
 api:
-	cd services/api && uv run uvicorn gemelo.app:app --host 0.0.0.0 --port 8000
+	cd services/api && uv run uvicorn aigis.app:app --host 0.0.0.0 --port 8000
 
 # Gateway del modelo en :8787 (lee GATEWAY_* del entorno o de .env)
 gateway:
-	cd services/api && uv run uvicorn gemelo.gateway.app:app --port 8787 --no-access-log
+	cd services/api && uv run uvicorn aigis.gateway.app:app --port 8787 --no-access-log
 
 test:
 	cd services/api && uv run pytest

@@ -176,7 +176,7 @@ class SandboxProvider(ABC):
         """git diff del repo de la tarea, sin .env ni archivos de control."""
         await run(self, sb, ["git", "add", "-A"])
         res = await run(self, sb, ["git", "diff", "--cached", "--binary", base, "--", ".",
-                                   ":(exclude).env", ":(exclude).gemelo", ":(exclude).gemelo_tests"])
+                                   ":(exclude).env", ":(exclude).aigis", ":(exclude).aigis_tests"])
         return res.stdout
 
     @abstractmethod
@@ -224,19 +224,19 @@ def get_provider(name: str | Mapping[str, str] | None = None, **kw) -> SandboxPr
     value = name.strip().lower() or DEFAULT_PROVIDER
 
     if value == "local":
-        from gemelo.providers.local import LocalProvider
+        from aigis.providers.local import LocalProvider
 
         return LocalProvider(**kw)
     if value == "e2b":
-        from gemelo.providers.e2b import E2BProvider
+        from aigis.providers.e2b import E2BProvider
 
         return E2BProvider(**kw)
     if value == "remote":
-        from gemelo.providers.remote import RemoteProvider
+        from aigis.providers.remote import RemoteProvider
 
         return RemoteProvider(**kw)
     if value == "fake":
-        from gemelo.providers.fake import FakeProvider
+        from aigis.providers.fake import FakeProvider
 
         return FakeProvider(**kw)
 

@@ -33,9 +33,9 @@ def _docker_up() -> bool:
 if not _docker_up():
     pytest.skip("el daemon de Docker no responde", allow_module_level=True)
 
-from gemelo.config import get_settings  # noqa: E402
-from gemelo.providers import NetworkProfile, SandboxSpec, run  # noqa: E402
-from gemelo.providers.local import DockerProvider  # noqa: E402
+from aigis.config import get_settings  # noqa: E402
+from aigis.providers import NetworkProfile, SandboxSpec, run  # noqa: E402
+from aigis.providers.local import DockerProvider  # noqa: E402
 
 GW_PORT = 8787
 
@@ -167,12 +167,12 @@ def test_isolated_cannot_resolve_external_names(provider):
     async def go():
         sb = await provider.create(_spec(NetworkProfile.isolated(["pypi.org"])))
         try:
-            for name in ("example.com", "gemelo-dns-leak-probe.example.org", "pypi.org"):
+            for name in ("example.com", "aigis-dns-leak-probe.example.org", "pypi.org"):
                 r = await run(provider, sb, ["sh", "-c", f"timeout 8 getent hosts {name}; echo rc=$?"])
                 assert "rc=0" not in r.stdout, (name, r.stdout)
             # El proxy no resuelve destinos negados: el CONNECT a un nombre fuera de la allowlist
             # se rechaza antes de cualquier consulta DNS
-            r = await _curl(provider, sb, "https://secreto123.gemelo-dns-leak-probe.example.org")
+            r = await _curl(provider, sb, "https://secreto123.aigis-dns-leak-probe.example.org")
             assert r.stdout == "000" or r.stdout.startswith("4")
         finally:
             await provider.destroy(sb)

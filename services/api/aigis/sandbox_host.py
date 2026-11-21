@@ -3,15 +3,15 @@
 Corre en la VM de cajas (gemelo-sbx), en el host y no en un contenedor: el provider usa
 el CLI de Docker y el admin del proxy en 127.0.0.1:3129. La usa `RemoteProvider`.
 
-    GEMELO_SANDBOX_HOST_TOKEN=... uvicorn gemelo.sandbox_host:app --host 100.100.0.8 --port 8080
+    AIGIS_SANDBOX_HOST_TOKEN=... uvicorn aigis.sandbox_host:app --host 100.100.0.8 --port 8080
 
 Reglas:
-- Bearer obligatorio (GEMELO_SANDBOX_HOST_TOKEN). Sin token configurado no arranca.
-- Solo opera sobre cajas `gemelo.*`; la imagen, el runtime y los límites salen de la
+- Bearer obligatorio (AIGIS_SANDBOX_HOST_TOKEN). Sin token configurado no arranca.
+- Solo opera sobre cajas `aigis.*`; la imagen, el runtime y los límites salen de la
   configuración de esta máquina, no del request.
 - `exec` corre siempre dentro de una caja. Si el cliente corta, el provider mata el proceso.
 - Reaper propio cada 60 s: si el orquestador cae, las cajas igual vencen por TTL.
-- Tope de cajas vivas (GEMELO_SANDBOX_HOST_MAX_BOXES): 429 al pasarse.
+- Tope de cajas vivas (AIGIS_SANDBOX_HOST_MAX_BOXES): 429 al pasarse.
 """
 
 from __future__ import annotations
@@ -31,8 +31,8 @@ from .providers import Sandbox
 from .providers.local import LocalProvider
 from .providers.remote import net_from_dict, sb_to_dict, spec_from_dict
 
-TOKEN = os.environ.get("GEMELO_SANDBOX_HOST_TOKEN", "")
-MAX_BOXES = int(os.environ.get("GEMELO_SANDBOX_HOST_MAX_BOXES", "10"))
+TOKEN = os.environ.get("AIGIS_SANDBOX_HOST_TOKEN", "")
+MAX_BOXES = int(os.environ.get("AIGIS_SANDBOX_HOST_MAX_BOXES", "10"))
 
 
 class ExecBody(BaseModel):
@@ -51,7 +51,7 @@ class FilesBody(BaseModel):
 
 def create_app(provider: LocalProvider | None = None) -> FastAPI:
     if not TOKEN and provider is None:
-        raise RuntimeError("GEMELO_SANDBOX_HOST_TOKEN vacío: sandbox-host no arranca sin token")
+        raise RuntimeError("AIGIS_SANDBOX_HOST_TOKEN vacío: sandbox-host no arranca sin token")
     state: dict = {"prov": provider} if provider is not None else {}
 
     @asynccontextmanager
