@@ -76,3 +76,29 @@ services:
         sync: false          # URL de la web de P4
       - key: E2B_API_KEY
         sync: false
+
+  # Panel del equipo y web de P4 (Next.js). El navegador habla solo con este servicio;
+  # el proxy /api/gemelo reenvía a aigis-api con AIGIS_API_TOKEN, incluido el SSE.
+  - type: web
+    name: aigis-web
+    runtime: node
+    plan: starter            # el gratis duerme y corta el SSE de las corridas largas
+    rootDir: apps/web
+    buildCommand: npm ci && npm run build
+    startCommand: npm start  # next start toma $PORT de Render
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: AIGIS_API_URL
+        sync: false          # https://aigis-api.onrender.com
+      - key: AIGIS_API_TOKEN
+        fromService:
+          type: web
+          name: aigis-api
+          envVarKey: AIGIS_API_TOKEN
+      - key: PANEL_PASSWORD
+        sync: false          # contraseña compartida del equipo
+      - key: PANEL_SECRET
+        generateValue: true  # firma la cookie de sesión

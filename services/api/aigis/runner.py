@@ -409,7 +409,7 @@ class Orchestrator:
             finally:
                 try:
                     await asyncio.wait_for(asyncio.shield(high), timeout=self.settings.high_grace_after_low_s)
-                except TimeoutError:
+                except (TimeoutError, asyncio.TimeoutError):
                     high.cancel()
                     await asyncio.gather(high, return_exceptions=True)
                 except Exception:
