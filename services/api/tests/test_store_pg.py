@@ -61,8 +61,8 @@ def test_roundtrip(pg):
             await st.save_leak(Leak(run_id=run.id, lane="none", role="unico", secret_id="sec_1", pool="B",
                                     source="attacker", encoding="plain"))
             assert len(await st.leaks_for_run(run.id)) == 1
-            await st.save_diff(run.id, "gemelo", "alto", "diff --git a b")
-            assert await st.get_diff(run.id, "gemelo", "alto") == "diff --git a b"
+            await st.save_diff(run.id, "gemelo", "bajo", "diff --git a b")
+            assert await st.get_diff(run.id, "gemelo", "bajo") == "diff --git a b"
             await st.save_usage(run.id, {"cost_usd": 0.1})
         finally:
             await st.close()

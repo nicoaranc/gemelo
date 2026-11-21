@@ -13,7 +13,7 @@ Hay que entregar cuatro piezas que funcionen en un computador con Docker:
 
 La garantía que importa: **una caja con política `gw_only` no puede abrir ninguna conexión fuera del gateway y la allowlist, aunque el agente ejecute comandos arbitrarios o borre sus variables de proxy.**
 
-Fuera de alcance: la lógica de los carriles (monitor, FIDES, traspaso bajo a alto), el gateway real (P2), Postgres (P3), el provider E2B y la web.
+Fuera de alcance: la lógica de los carriles (monitor, FIDES, traspaso alto a bajo), el gateway real (P2), Postgres (P3), el provider E2B y la web.
 
 ## 2. Contexto mínimo
 
@@ -24,14 +24,14 @@ Gemelo protege a Claude Code contra robo de secretos. Por cada ataque se corren 
 | Sin defensa | 1 | Pool B (sintéticos) | `open` |
 | Monitor Haiku | 1 | Pool B | `open` |
 | FIDES | 1 | Pool B | `open`, pasa a `gw_only` al detectar un secreto |
-| Gemelo bajo | 1 | Pool A (honeytokens) | `open` |
-| Gemelo alto | 1 | Pool B | `gw_only` + allowlist de la tarea |
+| Gemelo alto | 1 | Pool A (honeytokens) | `open` |
+| Gemelo bajo | 1 | Pool B | `gw_only` + allowlist de la tarea |
 
 El orquestador (FastAPI, en el host) crea las cajas con el provider, copia repo y secretos, lanza `claude -p` y recibe los hooks. Este spec cubre todo lo que pasa desde "pedir una caja" hasta "destruirla".
 
 ## 3. Topología de red
 
-> **Actualización (implementado en `services/api/aigis/providers/local.py`):** no hay una red interna compartida. Cada caja tiene su propia red `internal: true` (`aigis-<run>-<carril>-<rol>-net`, subred /28 en 10.213.0.0/16) donde solo están ella y el proxy, y `aigis_egress` se crea con `enable_icc=false`. Con una red compartida el gemelo alto podía mandarle el secreto al bajo por IP interna y el bajo sacarlo a internet sin pasar por el proxy. El test `test_boxes_cannot_reach_each_other` lo cubre. El diagrama de abajo describe la versión anterior.
+> **Actualización (implementado en `services/api/aigis/providers/local.py`):** no hay una red interna compartida. Cada caja tiene su propia red `internal: true` (`aigis-<run>-<carril>-<rol>-net`, subred /28 en 10.213.0.0/16) donde solo están ella y el proxy, y `aigis_egress` se crea con `enable_icc=false`. Con una red compartida el gemelo bajo podía mandarle el secreto al alto por IP interna y el alto sacarlo a internet sin pasar por el proxy. El test `test_boxes_cannot_reach_each_other` lo cubre. El diagrama de abajo describe la versión anterior.
 
 ```
                  internet
@@ -88,7 +88,7 @@ Proceso Python asyncio propio (no squid), porque necesitamos política por caja 
 - Paquetes: `git`, `python3`, `python3-venv`, `curl`, `jq`, `ca-certificates`, `procps`.
 - Claude Code con versión fija: `npm install -g @anthropic-ai/claude-code@<versión probada>`. Anotar la versión en el Dockerfile.
 - Usuario no root `agent` (uid 1000). `--dangerously-skip-permissions` no corre como root.
-- Directorios: `/workspace` (repo de la tarea), `/handoff` (entrada del traspaso, solo lectura para el alto), `/opt/aigis` (hooks).
+- Directorios: `/workspace` (repo de la tarea), `/handoff` (entrada del traspaso, solo lectura para el bajo), `/opt/aigis` (hooks).
 - `/home/agent/.claude/settings.json` horneado en la imagen con los hooks:
 
 ```json
@@ -113,7 +113,7 @@ Proceso Python asyncio propio (no squid), porque necesitamos política por caja 
 ```
 
   Con `allow`, sale con código 0 sin salida.
-- Si el orquestador no responde en 10 s: con `AIGIS_HOOK_FAIL=closed` niega, con `open` permite. El alto y FIDES usan `closed`; sin defensa usa `open`.
+- Si el orquestador no responde en 10 s: con `AIGIS_HOOK_FAIL=closed` niega, con `open` permite. El bajo y FIDES usan `closed`; sin defensa usa `open`.
 - Solo biblioteca estándar de Python (urllib). Nada que instalar.
 
 Verificar el formato exacto de entrada y salida de hooks contra la documentación oficial de Claude Code para la versión fijada antes de cerrar.
@@ -158,7 +158,7 @@ class NetPolicy:
 @dataclass
 class SandboxSpec:
     run_id: str
-    lane: Literal["none", "monitor", "fides", "twin_low", "twin_high"]
+    lane: Literal["none", "monitor", "fides", "twin_high", "twin_low"]
     image: str = "aigis-sandbox:dev"
     net: NetPolicy = field(default_factory=lambda: NetPolicy("gw_only"))
     env: dict[str, str] = field(default_factory=dict)
