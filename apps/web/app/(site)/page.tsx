@@ -1,6 +1,7 @@
 import { ArrowRight, BellRing, Eye, Shield, ShieldOff, Split } from "lucide-react";
 import Link from "next/link";
 import { TwinDiagram } from "@/components/landing/twin-diagram";
+import { AigisWordmark } from "@/components/site/aigis-logo";
 import { ToneBadge } from "@/components/run/badges";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +26,7 @@ const LANES = [
   },
   {
     icon: Split,
-    name: "Gemelo",
+    name: "AIgis",
     how: "Dos copias: una con la llave y sin salida, otra con salida y sin la llave.",
     result: { tone: "safe" as const, text: "No filtra y entrega" },
   },
@@ -38,10 +39,10 @@ export default function Home() {
         <div className="flex min-w-0 flex-col gap-5">
           <p className="font-mono text-xs tracking-widest text-primary uppercase">Track AI Security · Platanus Hack 26</p>
           <h1 className="text-4xl leading-[1.05] font-semibold sm:text-5xl">
-            Lo único que tu agente puede filtrar es una llave falsa.
+            Lo único que se puede robar es falso.
           </h1>
           <p className="max-w-[60ch] text-lg text-muted-foreground">
-            Los firewalls de IA intentan detectar la filtración y se dejan engañar. Gemelo no detecta nada: separa al agente para
+            Los firewalls de IA intentan detectar la filtración y se dejan engañar. AIgis no detecta nada: separa al agente para
             que nunca tenga, al mismo tiempo, el secreto y la salida a internet.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -69,7 +70,7 @@ export default function Home() {
             sitio&quot;) para que la llave salga. El agente no necesita ser malo, solo obediente.
           </p>
           <p>
-            Para robar una llave hacen falta dos cosas al mismo tiempo: tenerla y tener salida. Gemelo hace que nunca se junten.
+            Para robar una llave hacen falta dos cosas al mismo tiempo: tenerla y tener salida. AIgis corre dos copias del agente, los gemelos, para que nunca se junten.
           </p>
         </div>
       </section>
@@ -88,10 +89,10 @@ export default function Home() {
           {LANES.map(({ icon: Icon, name, how, result }) => (
             <li
               key={name}
-              className={`flex flex-col gap-3 rounded-xl border bg-card p-4 ${name === "Gemelo" ? "border-2 border-primary bg-raised" : ""}`}
+              className={`flex flex-col gap-3 rounded-xl border bg-card p-4 ${name === "AIgis" ? "border-2 border-primary bg-raised" : ""}`}
             >
-              <Icon className={`size-5 ${name === "Gemelo" ? "text-primary" : "text-muted-foreground"}`} aria-hidden />
-              <div className={`font-display text-lg font-semibold ${name === "Gemelo" ? "text-primary" : ""}`}>{name}</div>
+              <Icon className={`size-5 ${name === "AIgis" ? "text-primary" : "text-muted-foreground"}`} aria-hidden />
+              <div className="font-display text-lg font-semibold">{name === "AIgis" ? <AigisWordmark /> : name}</div>
               <p className="text-sm text-muted-foreground">{how}</p>
               <ToneBadge tone={result.tone} className="mt-auto self-start">
                 {result.text}

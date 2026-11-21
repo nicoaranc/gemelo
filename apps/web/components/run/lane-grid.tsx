@@ -4,6 +4,7 @@ import { LANE_DEFENSE, laneHeadline } from "@/lib/lanes";
 import { LANE_LABEL, LANE_ORDER, type GEvent, type LaneKind, type Run } from "@/lib/types";
 import { TONE_CLASS } from "@/lib/verdict";
 import { cn } from "@/lib/utils";
+import { AigisWordmark } from "@/components/site/aigis-logo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "./badges";
 import { BoxTerminal } from "./box-terminal";
@@ -19,7 +20,10 @@ function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: G
     >
       <header className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-2">
-          <h3 className={cn("text-lg font-semibold", lane === "gemelo" && "text-primary")}>{LANE_LABEL[lane]}</h3>
+          <h3 className="text-lg font-semibold">
+            {/* En Space Grotesk la I de AIgis no tiene remates y se lee "Algis": va el wordmark */}
+            {lane === "gemelo" ? <AigisWordmark /> : LANE_LABEL[lane]}
+          </h3>
           <StatusBadge s={l.status} />
         </div>
         <p className="text-xs text-muted-foreground">{LANE_DEFENSE[lane]}</p>
@@ -48,7 +52,7 @@ function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: G
   );
 }
 
-// Escritorio: los 4 carriles a la vez, con el Gemelo más ancho. Móvil: un carril por pestaña.
+// Escritorio: los 4 carriles a la vez, con el carril AIgis más ancho. Móvil: un carril por pestaña.
 export function LaneGrid({ run, byLane }: { run: Run; byLane: Record<string, GEvent[]> }) {
   const lanes = LANE_ORDER.filter((l) => run.lanes[l]);
   return (

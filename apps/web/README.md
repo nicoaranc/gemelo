@@ -1,6 +1,6 @@
 # apps/web
 
-Next.js 15 con React 19, Tailwind v4 y shadcn/ui. Spec: `openspec/changes/add-playground-web/`.
+Web de AIgis. Next.js 15 con React 19, Tailwind v4 y shadcn/ui. Spec: `openspec/changes/add-playground-web/`. Marca y tokens: `docs/design-system/`.
 
 ## Páginas
 
@@ -77,7 +77,7 @@ Para probar una alerta de canary tardía en local:
 
 ## Estilos
 
-Tokens en `app/globals.css`. Además de los de shadcn hay tokens del dominio, separados del acento: `leak` (llave real filtrada), `honey` (honeytoken capturado), `safe` (entregado sin filtrar), `blocked` (bloqueado o red cortada), `tainted` (contexto contaminado), `terminal` (fondo de las cajas) y `chart-1` (serie de gráficos). Tema oscuro por defecto.
+Siguen el sistema AIgis (`docs/design-system/`). Tokens en `app/globals.css` con los hex de `tokens.json`; además de los de shadcn hay tokens del dominio: `leak` (llave real filtrada), `honey` (honeytoken; nada más usa ámbar), `safe` (contenido, tests en verde), `warn` (resultado parcial), `blocked` (neutro), `raised` (el carril AIgis), `terminal` y `chart-1`. Tema oscuro por defecto. El wordmark usa Inter Bold local (`app/fonts/`) por la variante `cv08`.
 
 ## Render
 

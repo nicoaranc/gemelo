@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { GemeloMark } from "@/components/site/site-header";
+import { AigisMark } from "@/components/site/aigis-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +35,7 @@ export function LoginForm() {
   return (
     <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-5 rounded-xl border bg-card p-6">
       <div className="flex flex-col gap-1">
-        <GemeloMark className="size-8 text-primary" />
+        <AigisMark className="size-10" />
         <h1 className="text-2xl font-semibold">Entrar al panel</h1>
         <p className="text-sm text-muted-foreground">
           Para lanzar corridas en vivo con Claude Code real. Las corridas grabadas se ven sin entrar.

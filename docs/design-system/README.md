@@ -78,14 +78,13 @@ La tarjeta **VistaAtaca** del artifact es la referencia visual de `/ataca` const
 
 ## Estado de la web (`apps/web`)
 
-La web se rediseñó antes de que existiera este sistema, con un tema propio parecido (teal, oscuro primero, Space Grotesk en títulos, tokens `leak`/`honey`/`safe`/`blocked`). Diferencias pendientes:
+La web sigue este sistema desde la rama `feat/web-redesign`:
 
-| Tema | Hoy en la web | Según el sistema |
-|---|---|---|
-| Nombre | "Gemelo" en la cabecera, la landing y el cuarto carril | "AIgis" (Gemelo queda como nombre de la técnica) |
-| Logo | Ícono propio de dos rectángulos | Isotipo AIgis y wordmark en Inter con `cv08` |
-| Colores | Tokens en `oklch` en `app/globals.css` | Hex exactos de `tokens.json` |
-| Ámbar | `honey` también se usa para "Se puede engañar" (monitor) | Ese caso es `warn`; el ámbar solo para honeytokens |
-| Texto y código | Inter y JetBrains Mono | IBM Plex Sans y IBM Plex Mono |
-| Radios | 8 px en casi todo | 6 / 10 / 14 / pill según el elemento |
-| Carril destacado | Borde `primary` al 40 % | `surface-raised` y borde `accent` de 2 px |
+- `app/globals.css` usa los hex exactos de `tokens.json`. Los nombres de shadcn apuntan a los del sistema (`background` = `bg`, `card` = `surface`, `raised` = `surface-raised`, `muted-foreground` = `fg-muted`, `subtle` = `fg-subtle`, `primary` = `accent`). Los del dominio: `leak`, `honey` (= `honeytoken`), `safe` (= `ok`) y `warn`.
+- Fuentes: IBM Plex Sans y Mono, Space Grotesk y, solo para el wordmark, Inter Bold servida desde `apps/web/app/fonts/` (inter-ui 4.1.1, OFL). Google Fonts le quita la variante `cv08` y sin ella "AIgis" se lee "Algis".
+- Donde "AIgis" va en Space Grotesk (título del carril, tarjeta de la landing), se usa el componente del wordmark, porque esa I tampoco tiene remates.
+- Logo, isotipo y favicon: `components/site/aigis-logo.tsx` y `app/icon.svg`. El isotipo toma los colores del tema: oscuro en tema oscuro, claro en tema claro.
+- El ámbar queda solo para honeytokens; los resultados parciales usan `warn`.
+- Gemelo queda como nombre de la técnica: "Gemelo bajo" y "Gemelo alto" en las cajas y el diagrama.
+
+Diferencias que quedan: el gráfico de `/resultados` usa un azul propio (`chart-1`) que no está en el sistema, y los inputs usan radio 10 en vez de 6.

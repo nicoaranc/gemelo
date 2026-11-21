@@ -10,7 +10,7 @@ import { LANE_LABEL, LANE_ORDER } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { LeakChart } from "./leak-chart";
 
-export const metadata: Metadata = { title: "Resultados · Gemelo" };
+export const metadata: Metadata = { title: "Resultados · AIgis" };
 export const dynamic = "force-dynamic";
 
 async function readSummary(): Promise<ResultsSummary | null> {

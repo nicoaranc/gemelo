@@ -54,6 +54,8 @@
   --warn: #a84c06;
   --warn-soft: #fdebdd;
   --terminal: var(--background);
+  --iso-signal: #0f6b6b;
+  --iso-canary: #c98a12;
   /* Serie de gráficos: azul validado (contraste y croma) contra las superficies de cada tema */
   --chart-1: #2a78d6;
 }
@@ -88,6 +90,8 @@
   --warn: #f59a4b;
   --warn-soft: #35200f;
   --chart-1: #3987e5;
+  --iso-signal: #3ddbc4;
+  --iso-canary: #f2b544;
 }
 
 /* Derivados: el sistema pide el ámbar al 14 % como fondo, y un neutro para lo que no es estado */

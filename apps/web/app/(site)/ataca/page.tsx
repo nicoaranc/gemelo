@@ -5,7 +5,7 @@ import { readRecordingIndex } from "@/lib/recordings-server";
 import { LaunchPanel } from "./launch-panel";
 import { RecordingGallery } from "./recording-gallery";
 
-export const metadata: Metadata = { title: "Ataca · Gemelo" };
+export const metadata: Metadata = { title: "Ataca · AIgis" };
 export const dynamic = "force-dynamic";
 
 // Server Component: la cookie de sesión es httpOnly, así que la sesión se decide aquí.

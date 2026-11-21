@@ -88,7 +88,7 @@ export const LANE_LABEL: Record<string, string> = {
   none: "Sin defensa",
   monitor: "Monitor LLM",
   fides: "FIDES",
-  gemelo: "Gemelo",
+  gemelo: "AIgis",
 };
 
 export const ROLE_LABEL: Record<string, string> = { unico: "caja única", bajo: "bajo (lee la web)", alto: "alto (secretos)" };
