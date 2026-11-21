@@ -45,6 +45,8 @@
   --tainted: oklch(0.5 0.15 300);
   --tainted-soft: oklch(0.95 0.03 300);
   --terminal: oklch(0.97 0.004 210);
+  /* Serie de gráficos: azul validado (contraste y croma) contra las superficies de cada tema */
+  --chart-1: #2a78d6;
 }
 
 .dark {
@@ -78,6 +80,7 @@
   --tainted: oklch(0.75 0.13 300);
   --tainted-soft: oklch(0.29 0.05 300);
   --terminal: oklch(0.13 0.008 230);
+  --chart-1: #3987e5;
 }
 
 @theme inline {
@@ -120,6 +123,7 @@
   --color-tainted: var(--tainted);
   --color-tainted-soft: var(--tainted-soft);
   --color-terminal: var(--terminal);
+  --color-chart-1: var(--chart-1);
 }
 
 @layer base {
