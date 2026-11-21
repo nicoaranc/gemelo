@@ -153,9 +153,14 @@ export function PanelHome() {
           <h1 className="text-3xl font-semibold">Panel del equipo</h1>
           <p className="text-muted-foreground">Lanzar corridas en vivo, ver la cola y el historial, y grabar las buenas para la demo.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={logout}>
-          <LogOut className="size-4" aria-hidden /> Salir
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/demo">Cómo funciona</Link>
+          </Button>
+          <Button variant="outline" size="sm" onClick={logout}>
+            <LogOut className="size-4" aria-hidden /> Salir
+          </Button>
+        </div>
       </header>
       <HealthStrip />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)]">
