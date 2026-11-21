@@ -67,6 +67,7 @@ class E2BProvider(SandboxProvider):
         self.api_key = api_key or os.environ.get("E2B_API_KEY")
         # En E2B el gateway y los hooks son URLs públicas (Render o un túnel), nunca host.docker.internal
         self.always_hosts = sorted({h for h in (_host(s.gateway_url_sandbox), _host(s.hook_base_sandbox)) if h})
+        self.env_name = s.env_name
         self.boxes: dict[str, Sandbox] = {}
         self.handles: dict[str, object] = {}
 
@@ -116,7 +117,7 @@ class E2BProvider(SandboxProvider):
             sbx = await AsyncSandbox.create(
                 template=spec.template or self.template,
                 timeout=min(spec.ttl_s, MAX_TTL_S),
-                metadata={"run_id": spec.run_id, "lane": spec.lane, "role": spec.role, "gemelo": "1"},
+                metadata={"run_id": spec.run_id, "lane": spec.lane, "role": spec.role, "gemelo": self.env_name},
                 envs=spec.env,
                 network=self._network_opts(spec.network),
                 api_key=self.api_key,
@@ -163,7 +164,7 @@ class E2BProvider(SandboxProvider):
 
         if not self.api_key:
             return []
-        meta = {"gemelo": "1", **({"run_id": run_id} if run_id else {})}
+        meta = {"gemelo": self.env_name, **({"run_id": run_id} if run_id else {})}
         pager = AsyncSandbox.list(query=SandboxQuery(metadata=meta), api_key=self.api_key)
         res = []
         while pager.has_next:
