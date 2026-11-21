@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -49,6 +50,9 @@ class Settings(BaseSettings):
     # claude o scripted (sin gasto de API)
     agent: str = "scripted"
     lanes: str = "none,monitor,fides,gemelo"
+
+    # Postgres (Render la inyecta como DATABASE_URL). Vacía = corridas en memoria.
+    database_url: str = Field(default="", validation_alias=AliasChoices("GEMELO_DATABASE_URL", "DATABASE_URL"))
 
     # Token para lanzar o cancelar corridas (POST). Vacío = abierto, solo para desarrollo.
     api_token: str = ""
