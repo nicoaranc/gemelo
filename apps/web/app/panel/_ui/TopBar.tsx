@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { api } from "@/lib/api";
 import type { Health } from "@/lib/types";
-import { usePoll } from "./usePoll";
+import { usePoll } from "@/hooks/usePoll";
 
 export function TopBar() {
   const { data: h, error } = usePoll(() => api<Health>("/health"), 10000);

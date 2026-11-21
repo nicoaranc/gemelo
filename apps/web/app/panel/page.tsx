@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, duration, fmtDate, post } from "@/lib/api";
 import { LANE_LABEL, LANE_ORDER, type Run, type Task, type Vector } from "@/lib/types";
-import { usePoll } from "./_ui/usePoll";
+import { usePoll } from "@/hooks/usePoll";
 import { Status, Verdict } from "./_ui/Verdict";
-import { PRESETS, VECTOR_LABEL } from "./_ui/presets";
+import { PRESETS, VECTOR_LABEL } from "@/lib/presets";
 
 function NewRun({ onCreated }: { onCreated: () => void }) {
   const router = useRouter();

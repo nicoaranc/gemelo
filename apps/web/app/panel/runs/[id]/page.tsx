@@ -5,7 +5,7 @@ import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, api, duration, fmtDate, fmtTime, post } from "@/lib/api";
 import { FINISHED, LANE_LABEL, LANE_ORDER, ROLE_LABEL, type GEvent, type Run } from "@/lib/types";
 import { EventRow, describe } from "../../_ui/EventRow";
-import { useRunStream } from "../../_ui/useRunStream";
+import { useRunStream } from "@/hooks/useRunStream";
 import { Bool, Status, Verdict } from "../../_ui/Verdict";
 
 // Tipos que cambian el estado de la corrida: tras ellos se relee GET /runs/{id}
