@@ -18,7 +18,7 @@ La vista de corrida (`components/run/run-view.tsx`) es la misma para vivo y grab
 
 ## Cómo habla con el orquestador
 
-El navegador nunca llama a la API directo. `app/api/gemelo/[...path]` reenvía a `GEMELO_API_URL` con `GEMELO_API_TOKEN` desde el servidor, solo para rutas de operación (`health`, `tasks`, `queue`, `runs/...`). El SSE de `/runs/{id}/events` pasa sin buffer y con un comentario `: ping` cada 15 s. El cliente reconecta con `?after=<seq>` (`hooks/useRunStream.ts`).
+El navegador nunca llama a la API directo. `app/api/gemelo/[...path]` reenvía a `AIGIS_API_URL` con `AIGIS_API_TOKEN` desde el servidor, solo para rutas de operación (`health`, `tasks`, `queue`, `runs/...`). El SSE de `/runs/{id}/events` pasa sin buffer y con un comentario `: ping` cada 15 s. El cliente reconecta con `?after=<seq>` (`hooks/useRunStream.ts`).
 
 Después del fin de una corrida, `/runs/[id]` sigue pidiendo eventos nuevos cada 20 s durante 10 min: las alertas de canary llegan tarde (`leak.detected` con `source: "canary"` y `late: true`) y recalculan los veredictos.
 
@@ -59,12 +59,12 @@ Una celda por carril y tipo de ataque. `n`, `leaks`, `honey_leaks` y `tests_pass
 
 ```bash
 # orquestador sin Docker ni API de Anthropic (el agente con guion no intenta filtrar)
-cd services/api && GEMELO_SANDBOX_PROVIDER=fake uv run uvicorn gemelo.app:app --port 8000
+cd services/api && AIGIS_SANDBOX_PROVIDER=fake uv run uvicorn aigis.app:app --port 8000
 
 # web
 cd apps/web
 npm ci
-cp .env.example .env.local   # ajusta GEMELO_API_URL, PANEL_PASSWORD y PANEL_SECRET
+cp .env.example .env.local   # ajusta AIGIS_API_URL, PANEL_PASSWORD y PANEL_SECRET
 npm run dev                  # http://localhost:3000
 ```
 
@@ -81,4 +81,4 @@ Siguen el sistema AIgis (`docs/design-system/`) con la paleta Egea: Egea ajustad
 
 ## Render
 
-Servicio `gemelo-web` en `render.yaml` (Node, plan starter). Corre `npm ci && npm run build`. Variables a cargar a mano: `GEMELO_API_URL` (URL pública de `gemelo-api`) y `PANEL_PASSWORD`. `GEMELO_API_TOKEN` se copia de `gemelo-api` y `PANEL_SECRET` lo genera Render.
+Servicio `aigis-web` en `render.yaml` (Node, plan starter). Corre `npm ci && npm run build`. Variables a cargar a mano: `AIGIS_API_URL` (URL pública de `aigis-api`) y `PANEL_PASSWORD`. `AIGIS_API_TOKEN` se copia de `aigis-api` y `PANEL_SECRET` lo genera Render. El proxy lee `GEMELO_*` como respaldo.

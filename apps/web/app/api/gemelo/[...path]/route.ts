@@ -19,10 +19,11 @@ async function forward(req: Request, ctx: { params: Promise<{ path: string[] }> 
   const sub = path.join("/");
   if (!ALLOWED.test(sub)) return Response.json({ detail: "ruta no permitida" }, { status: 404 });
 
-  const base = (process.env.GEMELO_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+  // AIGIS_* desde el renombre (PR 7); GEMELO_* queda como respaldo para ambientes viejos
+  const base = (process.env.AIGIS_API_URL || process.env.GEMELO_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
   const url = `${base}/${sub}${new URL(req.url).search}`;
   const headers: Record<string, string> = {};
-  const token = process.env.GEMELO_API_TOKEN;
+  const token = process.env.AIGIS_API_TOKEN || process.env.GEMELO_API_TOKEN;
   if (token) headers.authorization = `Bearer ${token}`;
   const ct = req.headers.get("content-type");
   if (ct) headers["content-type"] = ct;
