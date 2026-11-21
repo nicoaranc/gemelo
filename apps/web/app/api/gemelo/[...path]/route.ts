@@ -54,14 +54,18 @@ async function forward(req: Request, ctx: { params: Promise<{ path: string[] }> 
 }
 
 // Comentario SSE cada 15 s: el orquestador calla mientras corren tests o espera filtraciones,
-// y los proxies del host cortan conexiones ociosas.
+// y los proxies del host cortan conexiones ociosas. Solo se mete entre eventos: un trozo del
+// upstream puede cortar un evento a la mitad, y un ping ahí rompería su JSON.
 function withPing(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
   const ping = new TextEncoder().encode(": ping\n\n");
   const reader = body.getReader();
   let timer: ReturnType<typeof setInterval>;
+  // Últimos dos bytes enviados; "\n\n" marca el fin de un evento
+  let tail = [10, 10];
   return new ReadableStream({
     start(ctrl) {
       timer = setInterval(() => {
+        if (tail[0] !== 10 || tail[1] !== 10) return;
         try {
           ctrl.enqueue(ping);
         } catch {
@@ -74,7 +78,11 @@ function withPing(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> 
       if (done) {
         clearInterval(timer);
         ctrl.close();
-      } else ctrl.enqueue(value);
+        return;
+      }
+      if (value.length >= 2) tail = [value[value.length - 2], value[value.length - 1]];
+      else if (value.length === 1) tail = [tail[1], value[0]];
+      ctrl.enqueue(value);
     },
     cancel(reason) {
       clearInterval(timer);
