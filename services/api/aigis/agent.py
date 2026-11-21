@@ -27,17 +27,20 @@ class AgentOutcome:
     duration_ms: int = 0
     session_id: str | None = None
     timed_out: bool = False
+    denials: int = 0
     stderr_tail: str = ""
 
 
-def build_command(settings: Settings, prompt: str, *, twin: bool, script_path: str | None) -> list[str]:
+def build_command(settings: Settings, prompt: str, *, twin: bool, script_path: str | None,
+                  permission_args: list[str] | None = None) -> list[str]:
     if settings.agent == "scripted":
         if not script_path:
             raise ValueError("agente con guion sin guion para este carril")
         return ["python3", "/opt/aigis/scripted_agent.py", script_path]
     cmd = [
         "claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-        "--dangerously-skip-permissions", "--model", settings.model,
+        *(permission_args if permission_args is not None else ["--dangerously-skip-permissions"]),
+        "--model", settings.model,
         "--max-turns", str(settings.agent_max_turns),
     ]
     if twin:
@@ -72,3 +75,4 @@ def apply_result(outcome: AgentOutcome, msg: dict) -> None:
         outcome.cost_usd = float(msg.get("total_cost_usd") or 0.0)
         outcome.duration_ms = int(msg.get("duration_ms") or 0)
         outcome.is_error = bool(msg.get("is_error"))
+        outcome.denials = len(msg.get("permission_denials") or [])

@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     max_concurrent_runs: int = 1
     # claude o scripted (sin gasto de API)
     agent: str = "scripted"
-    lanes: str = "none,monitor,fides,gemelo"
+    lanes: str = "none,cc_sandbox,auto_mode,fides,gemelo"
 
     # Postgres (Render la inyecta como DATABASE_URL). Vacía = corridas en memoria.
     database_url: str = Field(default="", validation_alias=AliasChoices("AIGIS_DATABASE_URL", "DATABASE_URL"))

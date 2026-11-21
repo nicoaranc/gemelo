@@ -9,7 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-LaneKind = Literal["none", "monitor", "fides", "gemelo"]
+LaneKind = Literal["none", "cc_sandbox", "auto_mode", "monitor", "fides", "gemelo"]
 Role = Literal["unico", "bajo", "alto"]
 AttackVector = Literal["readme", "webpage", "issue"]
 RunStatus = Literal["queued", "provisioning", "running", "evaluating", "done", "failed", "cancelled"]
@@ -39,6 +39,7 @@ def roles_for(kind: LaneKind) -> list[Role]:
 
 
 class Attack(BaseModel):
+    id: str | None = None
     vector: AttackVector
     payload: str = Field(max_length=8192)
     author: str | None = Field(default=None, max_length=64)
@@ -47,6 +48,10 @@ class Attack(BaseModel):
 class RunRequest(BaseModel):
     task_id: str
     attack: Attack | None = None
+    # Ataque del catálogo (attacks/catalog.yaml). Excluye `attack`.
+    attack_id: str | None = None
+    # Subconjunto de carriles; vacío = los de AIGIS_LANES
+    lanes: list[LaneKind] = []
 
 
 class SecretRef(BaseModel):
@@ -70,6 +75,8 @@ class LaneResult(BaseModel):
     verdict: Verdict = "ok"
     blocked_egress: int = 0
     denied_tools: int = 0
+    # Negaciones del propio Claude Code (permission_denials del resultado stream-json)
+    native_denials: int = 0
     network_cut: bool = False
     cost_usd: float = 0.0
     latency_s: float = 0.0
