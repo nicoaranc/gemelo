@@ -125,7 +125,7 @@ def test_diff_stays_redacted_after_restart(harness):
     asyncio.run(harness.store.save_diff(run_id, "none", "unico", raw))
     import gc
 
-    from gemelo.runner import Orchestrator
+    from aigis.runner import Orchestrator
     for o in gc.get_objects():
         if isinstance(o, Orchestrator):
             o.registry.by_id.clear()
@@ -135,13 +135,13 @@ def test_diff_stays_redacted_after_restart(harness):
 
 
 def test_api_token_protects_reads(tmp_path):
-    """Con GEMELO_API_TOKEN, lecturas y lanzamientos piden token; /health no."""
+    """Con AIGIS_API_TOKEN, lecturas y lanzamientos piden token; /health no."""
     from fastapi.testclient import TestClient
 
-    from gemelo.app import create_app
-    from gemelo.config import REPO_ROOT, Settings
-    from gemelo.gateway_client import StubGateway
-    from gemelo.providers.fake import FakeProvider
+    from aigis.app import create_app
+    from aigis.config import REPO_ROOT, Settings
+    from aigis.gateway_client import StubGateway
+    from aigis.providers.fake import FakeProvider
 
     s = Settings(sandbox_provider="fake", api_token="secreto-de-prueba", tasks_dir=REPO_ROOT / "tasks",
                  sandbox_dir=REPO_ROOT / "sandbox")

@@ -272,13 +272,13 @@ class Orchestrator:
         env = {
             "ANTHROPIC_BASE_URL": s.gateway_url_sandbox,
             "ANTHROPIC_AUTH_TOKEN": rc.gateway_token,
-            "ANTHROPIC_CUSTOM_HEADERS": f"X-Gemelo-Lane: {lane}/{role}",
+            "ANTHROPIC_CUSTOM_HEADERS": f"X-Aigis-Lane: {lane}/{role}",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             "DISABLE_AUTOUPDATER": "1",
-            "GEMELO_HOOK_URL": f"{s.hook_base_sandbox}/hooks/{r.id}/{lane}/{role}",
-            "GEMELO_HOOK_TOKEN": box.hook_token,
-            "GEMELO_HOOK_FAIL": defense.hook_fail,
-            "GEMELO_ATTACKER_URL": s.attacker_url_sandbox,
+            "AIGIS_HOOK_URL": f"{s.hook_base_sandbox}/hooks/{r.id}/{lane}/{role}",
+            "AIGIS_HOOK_TOKEN": box.hook_token,
+            "AIGIS_HOOK_FAIL": defense.hook_fail,
+            "AIGIS_ATTACKER_URL": s.attacker_url_sandbox,
         }
         sb = await self.provider.create(SandboxSpec(run_id=r.id, lane=lane, role=role, network=net, env=env))
         rc.sandboxes[(lane, role)] = sb
@@ -288,7 +288,7 @@ class Orchestrator:
         files: dict[str, bytes | str] = {f"/workspace/{rel}": data for rel, data in iter_files(t.repo_dir)}
         gi = files.get("/workspace/.gitignore", b"")
         gi = gi.decode() if isinstance(gi, bytes) else gi
-        files["/workspace/.gitignore"] = gi + ("\n" if gi and not gi.endswith("\n") else "") + ".env\n.gemelo/\n.gemelo_tests/\n"
+        files["/workspace/.gitignore"] = gi + ("\n" if gi and not gi.endswith("\n") else "") + ".env\n.aigis/\n.aigis_tests/\n"
         if r.attack:
             a = r.attack
             if a.vector == "readme":
@@ -304,7 +304,7 @@ class Orchestrator:
         await self.provider.write_files(sb, files)
         await run(self.provider, sb, [*GIT, "init", "-q", "-b", "main"], user="agent")
         await run(self.provider, sb, [*GIT, "add", "-A"], user="agent")
-        await run(self.provider, sb, [*GIT, "commit", "-q", "-m", "gemelo-base"], user="agent")
+        await run(self.provider, sb, [*GIT, "commit", "-q", "-m", "aigis-base"], user="agent")
         head = await run(self.provider, sb, [*GIT, "rev-parse", "HEAD"], user="agent")
         box.base_sha = head.stdout.strip() or None
 
@@ -322,7 +322,7 @@ class Orchestrator:
             if sp:
                 txt = (sp.read_text("utf-8").replace("{ATTACKER_URL}", s.attacker_url_sandbox)
                        .replace("{DOC_URL}", self._doc_url(rc)))
-                await self.provider.write_files(sb, {"/tmp/gemelo_script.json": txt})
+                await self.provider.write_files(sb, {"/tmp/aigis_script.json": txt})
         await self.emit(rc, "sandbox.ready", {"sandbox_id": sb.id, "network": net.label,
                                              "pool": "A" if role == "bajo" else "B",
                                              "secrets": [x.env_name for x in refs]}, lane=lane, role=role)
@@ -335,7 +335,7 @@ class Orchestrator:
         out = AgentOutcome()
         rc.outcomes[(lane, role)] = out
         twin = lane == "gemelo"
-        script = "/tmp/gemelo_script.json" if self.settings.agent == "scripted" else None
+        script = "/tmp/aigis_script.json" if self.settings.agent == "scripted" else None
         cmd = build_command(self.settings, self._prompt(rc), twin=twin, script_path=script)
         await self._lane_status(rc, lane, role, "agent_running")
         stderr: list[str] = []

@@ -22,7 +22,7 @@ ALLOW: Decision = ("allow", None)
 NET_FAIL = re.compile(
     r"(Could not resolve host|Connection refused|Failed to connect|Network is unreachable|"
     r"Temporary failure in name resolution|Name or service not known|blocked by network policy|"
-    r"403 Forbidden.*gemelo|Connection timed out|getaddrinfo failed|No route to host)",
+    r"403 Forbidden.*aigis|Connection timed out|getaddrinfo failed|No route to host)",
     re.I,
 )
 

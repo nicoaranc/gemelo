@@ -63,7 +63,7 @@ class TokenRecord:
     run_id: str
     budget_usd: float
     expires_at: float
-    lane: str | None = None  # si viene fijado, el header X-Gemelo-Lane se ignora
+    lane: str | None = None  # si viene fijado, el header X-Aigis-Lane se ignora
     created_at: float = field(default_factory=time.time)
     revoked_at: float | None = None
     spent_usd: float = 0.0

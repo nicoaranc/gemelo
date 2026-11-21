@@ -18,10 +18,10 @@ from .config import GatewaySettings, get_gateway_settings
 from .pricing import PriceTable, Usage
 from .tokens import Denied, Reservation, TokenRecord, TokenStore, clean_lane
 
-log = logging.getLogger("gemelo.gateway")
+log = logging.getLogger("aigis.gateway")
 
 # Headers del cliente que se reenvían al upstream. Todo lo demás se descarta, en especial
-# Authorization, x-api-key y X-Gemelo-Lane.
+# Authorization, x-api-key y X-Aigis-Lane.
 FORWARD_REQ = ("anthropic-version", "anthropic-beta", "content-type", "accept")
 FORWARD_RESP = ("content-type", "request-id", "retry-after", "anthropic-organization-id")
 
@@ -89,7 +89,7 @@ def create_gateway_app(settings: GatewaySettings | None = None,
         yield
         await app.state.http.aclose()
 
-    app = FastAPI(title="Gemelo gateway", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(title="AIgis gateway", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
     app.state.store = store
     app.state.settings = s
 
@@ -171,7 +171,7 @@ def create_gateway_app(settings: GatewaySettings | None = None,
         return req.headers.get("x-api-key", "").strip()
 
     def lane_of(rec: TokenRecord, req: Request) -> str:
-        return rec.lane or clean_lane(req.headers.get("x-gemelo-lane"))
+        return rec.lane or clean_lane(req.headers.get("x-aigis-lane"))
 
     def upstream_headers(req: Request) -> dict[str, str]:
         h = {k: req.headers[k] for k in FORWARD_REQ if k in req.headers}

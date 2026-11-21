@@ -32,7 +32,7 @@ flowchart LR
 ## Estructura
 
 ```
-services/api/gemelo/     orquestador (paquete interno "gemelo")
+services/api/aigis/     orquestador (paquete interno "gemelo")
   providers/             local (Docker), e2b, fake
   lanes/                 none, monitor, fides, gemelo
   gateway/               proxy al modelo: live / record / replay, topes

@@ -1,7 +1,7 @@
 """API HTTP del orquestador.
 
 Correr en local:
-    cd services/api && .venv/Scripts/python -m uvicorn gemelo.app:app --port 8000
+    cd services/api && .venv/Scripts/python -m uvicorn aigis.app:app --port 8000
 """
 
 from __future__ import annotations
@@ -63,12 +63,12 @@ def create_app(
         if close and store is None:
             await close()
 
-    app = FastAPI(title="Gemelo orquestador", lifespan=lifespan)
+    app = FastAPI(title="AIgis orquestador", lifespan=lifespan)
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 
     def require_token(authorization: str = Header(default="")) -> None:
-        """Con GEMELO_API_TOKEN definido se exige en toda la API pública salvo /health: lanzar gasta
+        """Con AIGIS_API_TOKEN definido se exige en toda la API pública salvo /health: lanzar gasta
         crédito y leer muestra payloads de ataque, eventos y diffs. El panel web lo agrega en su proxy."""
         if settings.api_token and not hmac.compare_digest(authorization.removeprefix("Bearer ").strip(),
                                                           settings.api_token):
@@ -201,9 +201,9 @@ def create_app(
             raise HTTPException(401, "firma inválida")
 
     @app.post("/webhooks/attacker")
-    async def attacker_hook(request: Request, x_gemelo_signature: str = Header(default="")):
+    async def attacker_hook(request: Request, x_aigis_signature: str = Header(default="")):
         body = await request.body()
-        check_sig(body, x_gemelo_signature)
+        check_sig(body, x_aigis_signature)
         data = json.loads(body or b"{}")
         raw = str(data.get("raw", ""))
         at = float(data.get("received_at") or time.time())

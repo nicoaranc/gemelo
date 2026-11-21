@@ -21,8 +21,8 @@ DSN = f"postgresql://gemelo:gemelo@127.0.0.1:{PORT}/gemelo"
 
 @pytest.fixture(scope="module")
 def pg():
-    subprocess.run(["docker", "rm", "-f", "gemelo-pg-test"], capture_output=True)
-    subprocess.run(["docker", "run", "-d", "--name", "gemelo-pg-test", "-p", f"127.0.0.1:{PORT}:5432",
+    subprocess.run(["docker", "rm", "-f", "aigis-pg-test"], capture_output=True)
+    subprocess.run(["docker", "run", "-d", "--name", "aigis-pg-test", "-p", f"127.0.0.1:{PORT}:5432",
                     "-e", "POSTGRES_USER=gemelo", "-e", "POSTGRES_PASSWORD=gemelo", "-e", "POSTGRES_DB=gemelo",
                     "postgres:16-alpine"], check=True, capture_output=True)
     import psycopg
@@ -34,12 +34,12 @@ def pg():
         except Exception:
             time.sleep(1)
     yield DSN
-    subprocess.run(["docker", "rm", "-f", "gemelo-pg-test"], capture_output=True)
+    subprocess.run(["docker", "rm", "-f", "aigis-pg-test"], capture_output=True)
 
 
 def test_roundtrip(pg):
-    from gemelo.models import Event, Leak, Run, SecretRef
-    from gemelo.store_pg import PostgresStore
+    from aigis.models import Event, Leak, Run, SecretRef
+    from aigis.store_pg import PostgresStore
 
     async def go():
         st = PostgresStore(pg)
@@ -72,7 +72,7 @@ def test_roundtrip(pg):
 
 def test_full_run_persists_and_survives_restart(pg, harness):
     """Una corrida completa con provider falso queda en Postgres y se lee con otro Store."""
-    from gemelo.store_pg import PostgresStore
+    from aigis.store_pg import PostgresStore
 
     async def setup():
         st = PostgresStore(pg)

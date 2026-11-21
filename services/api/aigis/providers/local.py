@@ -1,11 +1,11 @@
 """Proveedor local (Docker), vía el CLI `docker`.
 
 Topología (design de add-sandbox-provider):
-  gemelo-net-<caja>  una red internal: true por caja, solo con esa caja y el proxy.
+  aigis-net-<caja>  una red internal: true por caja, solo con esa caja y el proxy.
                      Sin salida y sin vista de las otras cajas.
-  gemelo_egress      bridge normal con enable_icc=false. Cajas con perfil abierto y el
+  aigis_egress      bridge normal con enable_icc=false. Cajas con perfil abierto y el
                      proxy. Salen a internet pero no se ven entre ellas.
-  gemelo-proxy       contenedor en todas esas redes. Único puente. Política por IP de origen.
+  aigis-proxy       contenedor en todas esas redes. Único puente. Política por IP de origen.
 
 Ninguna caja alcanza a otra: así el gemelo alto no puede pasarle un secreto al bajo
 (que sí tiene internet) por la red interna.
@@ -33,13 +33,13 @@ import httpx
 from ..config import get_settings
 from . import ExecEvent, NetworkProfile, Sandbox, SandboxProvider, SandboxSpec
 
-NET_EGRESS = "gemelo_egress"
-PROXY_NAME = "gemelo-proxy"
+NET_EGRESS = "aigis_egress"
+PROXY_NAME = "aigis-proxy"
 # Alias solo en las redes internas de cada caja: una caja abierta (en dos redes) igual
 # llega al proxy por su IP interna, que es la que tiene política.
-PROXY_ALIAS = "gemelo-egress-proxy"
-PROXY_IMAGE = "gemelo-proxy:dev"
-SANDBOX_IMAGE = os.environ.get("SANDBOX_IMAGE", "gemelo-sandbox:local")  # mismo tag que `make sandbox-image`
+PROXY_ALIAS = "aigis-egress-proxy"
+PROXY_IMAGE = "aigis-proxy:dev"
+SANDBOX_IMAGE = os.environ.get("SANDBOX_IMAGE", "aigis-sandbox:local")  # mismo tag que `make sandbox-image`
 ADMIN_URL = "http://127.0.0.1:3129"
 UIDS = {"agent": 1001, "root": 0}
 
@@ -101,9 +101,9 @@ class LocalProvider(SandboxProvider):
             code = 1
         if code != 0:
             await docker("network", "create", "-o", "com.docker.network.bridge.enable_icc=false",
-                         "--label", "gemelo.infra=1", NET_EGRESS)
+                         "--label", "aigis.infra=1", NET_EGRESS)
         await docker(
-            "run", "-d", "--name", PROXY_NAME, "--label", "gemelo.infra=1", "--network", NET_EGRESS,
+            "run", "-d", "--name", PROXY_NAME, "--label", "aigis.infra=1", "--network", NET_EGRESS,
             "--add-host", "host.docker.internal:host-gateway", "-p", "127.0.0.1:3129:3129",
             "-e", f"ADMIN_TOKEN={self.admin_token}", "-e", f"ALWAYS={','.join(self.always)}",
             "-e", f"EVENTS_URL={self.events_url}", "-e", f"OPEN_ALSO={','.join(self.open_also)}", PROXY_IMAGE,
@@ -127,7 +127,7 @@ class LocalProvider(SandboxProvider):
             i = self._subnet_i
             subnet = f"10.213.{i // 16}.{(i % 16) * 16}/28"
             code, _, err = await docker("network", "create", "--internal", "--subnet", subnet,
-                                        "--label", f"gemelo.run={run_id}", "--label", "gemelo.boxnet=1", net,
+                                        "--label", f"aigis.run={run_id}", "--label", "aigis.boxnet=1", net,
                                         check=False)
             if code == 0:
                 break
@@ -142,7 +142,7 @@ class LocalProvider(SandboxProvider):
         await docker("network", "rm", net, check=False)
 
     async def _reap_networks(self) -> None:
-        code, out, _ = await docker("network", "ls", "--filter", "label=gemelo.boxnet=1", "--format", "{{.Name}}",
+        code, out, _ = await docker("network", "ls", "--filter", "label=aigis.boxnet=1", "--format", "{{.Name}}",
                                     check=False)
         for net in out.decode().split() if code == 0 else []:
             await self._remove_box_network(net)  # falla si aún tiene cajas: se queda
@@ -156,15 +156,15 @@ class LocalProvider(SandboxProvider):
     # ---------- ciclo de vida ----------
 
     async def create(self, spec: SandboxSpec) -> Sandbox:
-        name = f"gemelo-{spec.run_id[-8:]}-{spec.lane}-{spec.role}"
+        name = f"aigis-{spec.run_id[-8:]}-{spec.lane}-{spec.role}"
         env = {**spec.env, "HTTP_PROXY": f"http://{PROXY_ALIAS}:3128", "HTTPS_PROXY": f"http://{PROXY_ALIAS}:3128",
                "http_proxy": f"http://{PROXY_ALIAS}:3128", "https_proxy": f"http://{PROXY_ALIAS}:3128",
                "ALL_PROXY": f"http://{PROXY_ALIAS}:3128", "NO_PROXY": "", "no_proxy": ""}
         net = await self._create_box_network(name, spec.run_id)
         args = [
             "run", "-d", "--name", name, "--hostname", f"{spec.lane}-{spec.role}",
-            "--label", f"gemelo.run={spec.run_id}", "--label", f"gemelo.lane={spec.lane}",
-            "--label", f"gemelo.role={spec.role}", "--label", f"gemelo.expires={int(time.time()) + spec.ttl_s}",
+            "--label", f"aigis.run={spec.run_id}", "--label", f"aigis.lane={spec.lane}",
+            "--label", f"aigis.role={spec.role}", "--label", f"aigis.expires={int(time.time()) + spec.ttl_s}",
             "--network", net, "--cap-drop", "ALL",
             "--cap-add", "CHOWN", "--cap-add", "DAC_OVERRIDE", "--cap-add", "FOWNER", "--cap-add", "KILL",
             "--security-opt", "no-new-privileges", "--pids-limit", "512",
@@ -219,7 +219,7 @@ class LocalProvider(SandboxProvider):
                 pass
 
     async def list(self, run_id: str | None = None) -> list[Sandbox]:
-        flt = f"label=gemelo.run={run_id}" if run_id else "label=gemelo.run"
+        flt = f"label=aigis.run={run_id}" if run_id else "label=aigis.run"
         code, out, _ = await docker("ps", "-a", "--filter", flt, "--format", "{{json .}}", check=False)
         if code != 0:
             return []
@@ -231,16 +231,16 @@ class LocalProvider(SandboxProvider):
             if known:
                 res.append(known)
                 continue
-            spec = SandboxSpec(run_id=labels.get("gemelo.run", ""), lane=labels.get("gemelo.lane", ""),
-                               role=labels.get("gemelo.role", ""), network=NetworkProfile.gateway_only())
+            spec = SandboxSpec(run_id=labels.get("aigis.run", ""), lane=labels.get("aigis.lane", ""),
+                               role=labels.get("aigis.role", ""), network=NetworkProfile.gateway_only())
             res.append(Sandbox(id=row["ID"][:12], spec=spec))
         return res
 
     async def reap(self) -> int:
         """Destruye cajas vencidas por TTL (proceso caído o corrida colgada)."""
         n, now = 0, int(time.time())
-        code, out, _ = await docker("ps", "-a", "--filter", "label=gemelo.expires", "--format",
-                                    '{{.ID}} {{.Label "gemelo.expires"}}', check=False)
+        code, out, _ = await docker("ps", "-a", "--filter", "label=aigis.expires", "--format",
+                                    '{{.ID}} {{.Label "aigis.expires"}}', check=False)
         for line in out.decode().splitlines() if code == 0 else []:
             cid, _, exp = line.partition(" ")
             if exp.isdigit() and int(exp) < now:
