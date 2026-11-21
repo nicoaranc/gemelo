@@ -35,7 +35,7 @@ flowchart LR
 services/api/gemelo/     orquestador (paquete interno "gemelo")
   providers/             local (Docker), e2b, fake
   lanes/                 none, monitor, fides, gemelo
-  gateway.py             proxy al modelo: live / record / replay, topes
+  gateway/               proxy al modelo: live / record / replay, topes
   scanner.py · leaks.py  escaneo del diff y detección de filtraciones
   integrity.py           vigilante de integridad del gemelo alto
 services/attacker/       sink público + decodificadores
