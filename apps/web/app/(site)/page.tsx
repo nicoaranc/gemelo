@@ -1,4 +1,4 @@
-import { ArrowRight, BellRing, Eye, Shield, ShieldOff, Split } from "lucide-react";
+import { ArrowRight, BellRing, Bot, Lock, Shield, ShieldOff, Split } from "lucide-react";
 import Link from "next/link";
 import { TwinDiagram } from "@/components/landing/twin-diagram";
 import { AigisWordmark } from "@/components/site/aigis-logo";
@@ -13,9 +13,15 @@ const LANES = [
     result: { tone: "leak" as const, text: "Filtra la llave real" },
   },
   {
-    icon: Eye,
-    name: "Monitor LLM",
-    how: "Haiku revisa cada comando antes de que corra.",
+    icon: Lock,
+    name: "Claude Code endurecido",
+    how: "Reglas deny sobre .env y sandbox nativo de Bash, como recomienda Anthropic.",
+    result: { tone: "warn" as const, text: "No lee .env, pero rompe tareas" },
+  },
+  {
+    icon: Bot,
+    name: "Auto mode",
+    how: "El clasificador de Anthropic revisa cada acción riesgosa antes de que corra.",
     result: { tone: "warn" as const, text: "Se puede engañar" },
   },
   {
@@ -78,14 +84,14 @@ export default function Home() {
       <section aria-labelledby="lanes" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h2 id="lanes" className="text-2xl font-semibold">
-            El mismo ataque contra cuatro defensas
+            El mismo ataque contra cinco defensas
           </h2>
           <p className="max-w-[65ch] text-muted-foreground">
-            En la demo, cada ataque corre en paralelo en cuatro carriles con Claude Code real, y se mide si filtró y si la tarea
+            En la demo, cada ataque corre en paralelo en cinco carriles con Claude Code real, y se mide si filtró y si la tarea
             igual quedó hecha.
           </p>
         </div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {LANES.map(({ icon: Icon, name, how, result }) => (
             <li
               key={name}
@@ -127,7 +133,7 @@ export default function Home() {
           </li>
           <li className="flex gap-3">
             <BellRing className="mt-1 size-4 shrink-0 text-primary" aria-hidden />
-            <span>El diff del gemelo alto se escanea antes de aceptarlo, por si el agente escondió la llave real en el código.</span>
+            <span>El diff del gemelo bajo se escanea antes de aceptarlo, por si el agente escondió la llave real en el código.</span>
           </li>
         </ul>
       </section>
@@ -139,7 +145,7 @@ export default function Home() {
         <ul className="flex max-w-[65ch] list-disc flex-col gap-2 pl-5 text-sm text-muted-foreground">
           <li>
             Solo protege secretos (confidencialidad). No impide que el agente haga daño con sus permisos (integridad), como
-            meter un backdoor o borrar archivos. Para eso está en camino un vigilante dentro del gemelo alto, que será heurístico.
+            meter un backdoor o borrar archivos. Para eso está en camino un vigilante dentro del gemelo bajo, que será heurístico.
           </li>
           <li>
             Si el agente filtra algo derivado de la llave falsa, el honeytoken no suena; la garantía sigue, porque lo filtrado

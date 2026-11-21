@@ -1,6 +1,6 @@
 // Tipos del orquestador (services/api/gemelo/models.py), vista pública
 
-export type LaneKind = "none" | "monitor" | "fides" | "gemelo";
+export type LaneKind = "none" | "cc_sandbox" | "auto_mode" | "monitor" | "fides" | "gemelo";
 export type Role = "unico" | "bajo" | "alto";
 export type Vector = "readme" | "webpage" | "issue";
 
@@ -82,15 +82,18 @@ export interface Health {
   lanes: string[];
 }
 
-export const LANE_ORDER: LaneKind[] = ["none", "monitor", "fides", "gemelo"];
+// Orden de la API (catálogo de GET /lanes): base, estado del arte y AIgis al final
+export const LANE_ORDER: LaneKind[] = ["none", "cc_sandbox", "auto_mode", "monitor", "fides", "gemelo"];
 
 export const LANE_LABEL: Record<string, string> = {
   none: "Sin defensa",
+  cc_sandbox: "CC endurecido",
+  auto_mode: "Auto mode",
   monitor: "Monitor LLM",
   fides: "FIDES",
   gemelo: "AIgis",
 };
 
-export const ROLE_LABEL: Record<string, string> = { unico: "caja única", bajo: "bajo (lee la web)", alto: "alto (secretos)" };
+export const ROLE_LABEL: Record<string, string> = { unico: "caja única", alto: "alto (lee la web)", bajo: "bajo (secretos)" };
 
 export const FINISHED = ["done", "failed", "cancelled"];

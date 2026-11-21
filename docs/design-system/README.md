@@ -43,9 +43,10 @@ Paleta **Egea**: Egea ajustada en el tema claro y Egea noche en el oscuro, la mi
 | `fg` | `#1F1A17` | `#EEE8DC` | Texto principal |
 | `fg-muted` | `#4E4741` | `#B9B2A6` | Texto secundario |
 | `fg-subtle` | `#6A6159` | `#A8A195` | Etiquetas, metadatos |
-| `accent` | `#1E4F91` | `#8DB2EA` | Cobalto: enlaces, foco, botón primario, gemelo alto |
+| `accent` | `#1E4F91` | `#8DB2EA` | Cobalto: enlaces, foco, botón primario, gemelo bajo |
 | `accent-on` | `#FBF9F4` | `#0F1722` | Texto sobre `accent` |
-| `twin-low` | `#A27842` | `#D9B98C` | Arena del gemelo bajo (borde de su caja) |
+| `twin-high` | `#A27842` | `#D9B98C` | Arena del gemelo alto, el de internet (borde de su caja) |
+| `twin-low` | `#1E4F91` | `#8DB2EA` | Cobalto del gemelo bajo, el de las llaves (borde de su caja) |
 | `honeytoken` | `#89532B` | `#E3AA7B` | Llaves falsas y su alarma; relleno arena |
 | `leak` | `#91062F` | `#F86F7F` | Fuga real, error |
 | `ok` | `#006B62` | `#7DC8AE` | Contenido, tests verdes |
@@ -53,7 +54,7 @@ Paleta **Egea**: Egea ajustada en el tema claro y Egea noche en el oscuro, la mi
 
 Cada estado tiene su `-soft` para el relleno (valores en `tokens.json`). Marca fija en ambos temas: `brand-ink #0F1722`, `brand-signal #8DB2EA`, `brand-canary #D9B98C`, `brand-fog #EEE8DC`.
 
-**Lenguaje de color:** cobalto = protegido y gemelo alto; arena = honeytoken y gemelo bajo (el que tiene las llaves falsas), y nada más; carmesí = fuga real, nunca decorativo; violeta = resultado parcial; verde azulado = en orden. Cada estado va siempre con texto, porque con daltonismo rojo-verde se separan en la banda de 6 a 8 (ΔE).
+**Lenguaje de color:** cobalto = protegido y gemelo bajo; arena = honeytoken y gemelo alto (el que tiene internet y las llaves falsas), y nada más; carmesí = fuga real, nunca decorativo; violeta = resultado parcial; verde azulado = en orden. Cada estado va siempre con texto, porque con daltonismo rojo-verde se separan en la banda de 6 a 8 (ΔE).
 
 **Contraste medido:** todos los textos pasan 4.5:1 sobre fondo, tarjetas, carril destacado, terminal y su propio relleno de estado, en ambos temas. Los bordes de los gemelos pasan 3:1.
 
@@ -75,7 +76,7 @@ Cada estado tiene su `-soft` para el relleno (valores en `tokens.json`). Marca f
 - **Carriles:** cuatro tarjetas `surface`, radio 14, misma estructura (h3, pill de estado, terminal en mono). El carril AIgis usa `surface-raised` y borde `accent` de 2 px.
 - **Pills de estado:** "Filtra" en `leak`, "A veces" y "Rompe la tarea" en `warn`, "No filtra" en `ok`, cada uno sobre su `-soft`. Siempre con texto.
 - **Terminal:** fondo `bg`, texto `fg` en mono; el paso que dispara una alarma va sobre `leak-soft` (llave verdadera) o `honeytoken` al 14 % (llave falsa); `ok-soft` cuando la red bloquea.
-- **Gemelos:** dos columnas iguales; el alto con disco sólido, el bajo con aro y punto ámbar, como el isotipo.
+- **Gemelos:** dos columnas iguales; el bajo con disco sólido, el alto con aro y punto ámbar, como el isotipo.
 - **Tablas:** encabezados en `label` mono, cifras a la derecha con `tabular-nums`, denominadores visibles ("7/20").
 
 La tarjeta **VistaAtaca** del artifact es la referencia visual de `/ataca` construida solo con estos tokens.

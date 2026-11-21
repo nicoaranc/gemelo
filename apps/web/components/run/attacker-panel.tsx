@@ -4,7 +4,7 @@ import { LANE_LABEL, type GEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ToneBadge } from "./badges";
 
-const ROLE: Record<string, string> = { unico: "caja única", bajo: "gemelo bajo", alto: "gemelo alto" };
+const ROLE: Record<string, string> = { unico: "caja única", alto: "gemelo alto", bajo: "gemelo bajo" };
 
 // "Lo que realmente le llegó al atacante": el remate de la demo
 export function AttackerPanel({ leaks }: { leaks: GEvent[] }) {
