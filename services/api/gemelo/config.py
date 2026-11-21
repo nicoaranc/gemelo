@@ -58,9 +58,13 @@ class Settings(BaseSettings):
     def lane_list(self) -> list[str]:
         return [x.strip() for x in self.lanes.split(",") if x.strip()]
 
+    # URL pública del orquestador para cajas remotas (E2B): https en 443, sin comodines.
+    # Vacía en local, donde las cajas usan host.docker.internal a través del proxy.
+    public_base_url: str = ""
+
     @property
     def hook_base_sandbox(self) -> str:
-        return f"http://{self.public_host}:{self.port}"
+        return self.public_base_url.rstrip("/") or f"http://{self.public_host}:{self.port}"
 
 
 @lru_cache

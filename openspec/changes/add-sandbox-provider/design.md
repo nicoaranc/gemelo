@@ -42,6 +42,17 @@ Ver proposal.md (Why). Render no permite contenedores privilegiados ni Docker de
 - `curl` incluido, para el spike y los tests de red.
 - `pytest` preinstalado (fijado a la versión de `services/api/uv.lock`): los tests de la tarea corren dentro del sandbox con la red cortada y no se pueden instalar en ese momento. Si una tarea necesita más dependencias, se resolverá en `add-task-fixtures`.
 
+**Decisiones tomadas al implementar el provider local y el de E2B** (21 nov, verificadas contra docs.e2b.dev y SDK e2b 2.64.0):
+- Interfaz asíncrona y `create(spec)`: el orquestador corre cinco cajas en paralelo y copia repo, ataque y secretos en orden, con los secretos fuera del commit base.
+- Local: una red `internal` por caja con el proxy adentro, en vez de una red interna compartida. Con la red compartida el gemelo alto podía pasarle el secreto al bajo por IP interna. E2B ya aísla cada sandbox, así los dos providers quedan equivalentes.
+- Local: el resolver embebido de Docker no responde nombres externos en redes `internal` (verificado con un test), y el proxy rechaza los destinos fuera de la allowlist antes de resolverlos.
+- Plantilla de una sola etapa (Node 22 desde el tarball oficial, verificado con SHASUMS256): E2B construye desde Dockerfile pero no admite multi-stage.
+- Mapeo de red en E2B: `open` sin `network`; `isolated(lista)` como `allow_out=[gateway, hooks, *lista]`, `deny_out=["0.0.0.0/0"]`, `dns_servers=[]`; `gateway_only` igual con solo gateway y hooks. El corte en caliente usa `update_network` con la configuración completa, porque reemplaza y no combina.
+- DNS en E2B: con un dominio en `allow_out`, E2B abre 8.8.8.8 para todo tráfico y `deny_out` no lo cierra, lo que permitiría exfiltrar por DNS. Las cajas aisladas van con `dns_servers=[]`, el orquestador resuelve los hosts permitidos y los fija en `/etc/hosts`, y vacía `/etc/resolv.conf`. Funciona porque el filtro mira el SNI (443) o el Host (80). Queda por medir si una consulta UDP directa a 8.8.8.8 igual sale; la suite E2B lo registra.
+- El filtro por dominio de E2B solo cubre HTTP en 80 y TLS en 443: gateway y hooks van en HTTPS 443. Se permiten hosts exactos, nunca comodines (en un CDN un host puede habilitar otros).
+- Los tests de bloqueo miran la respuesta HTTP: en E2B una conexión bloqueada puede parecer abierta.
+- Mejora posible para D4, no implementada: `network.rules` con `transform.headers` inyecta el token del gateway desde los secretos de E2B y el token nunca entra a la caja. Está en beta y E2B re-firma el TLS con su CA (Claude Code necesitaría `NODE_EXTRA_CA_CERTS`).
+
 **Limpieza garantizada.** El orquestador registra cada sandbox por corrida y los destruye en un `finally`; además, cada sandbox nace con una etiqueta de corrida y un timeout máximo (menor que 1 h en E2B) para que un proceso caído no deje sandboxes huérfanos.
 
 **Suite de conformidad parametrizada.** Tests pytest en `services/api/tests/` marcados por proveedor; `make test` corre `local` por defecto, y `SANDBOX_PROVIDER=e2b make test` corre la misma suite contra E2B.
