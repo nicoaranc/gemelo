@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
   const router = useRouter();
-  const raw = useSearchParams().get("next") || "/panel";
+  const raw = useSearchParams().get("next") || "/demo";
   // Solo rutas internas: evita redirigir a otro sitio
-  const next = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/panel";
+  const next = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/demo";
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,9 +36,9 @@ export function LoginForm() {
     <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-5 rounded-xl border bg-card p-6">
       <div className="flex flex-col gap-1">
         <AigisMark className="size-10" />
-        <h1 className="text-2xl font-semibold">Entrar al panel</h1>
+        <h1 className="text-2xl font-semibold">Entrar a la demo</h1>
         <p className="text-sm text-muted-foreground">
-          Para lanzar corridas en vivo con Claude Code real. Las corridas grabadas se ven sin entrar.
+          Solo para el equipo AIgis.
         </p>
       </div>
       <div className="flex flex-col gap-1.5">

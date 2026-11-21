@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// La galería de grabaciones vive en /ataca
+// La galería de grabaciones vive en /demo/ataca
 export default function ReplayIndex() {
-  redirect("/ataca");
+  redirect("/demo/ataca");
 }

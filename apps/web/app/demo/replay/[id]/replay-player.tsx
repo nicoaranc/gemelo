@@ -38,7 +38,7 @@ export function ReplayPlayer({ id }: { id: string }) {
       <div className="flex flex-col items-start gap-3 rounded-xl border p-6">
         <p>{error}</p>
         <Button asChild variant="outline" size="sm">
-          <Link href="/ataca">
+          <Link href="/demo/ataca">
             <ArrowLeft className="size-4" aria-hidden /> Ver las corridas grabadas
           </Link>
         </Button>
@@ -108,7 +108,7 @@ export function ReplayPlayer({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <Link href="/ataca" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link href="/demo/ataca" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden /> Corridas grabadas
       </Link>
       {rec.meta.highlight && <p className="max-w-3xl text-muted-foreground">{rec.meta.highlight}</p>}
