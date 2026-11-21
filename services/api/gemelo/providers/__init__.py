@@ -3,18 +3,29 @@
 Interfaz única que el orquestador usa para crear sandboxes, ejecutar comandos,
 leer resultados, cambiar la red y destruirlos, sin saber si detrás hay Docker
 (local) o E2B. Se elige con la variable SANDBOX_PROVIDER.
+
+Fusión de la interfaz de add-sandbox-provider (grupo 2) con lo que necesita el
+orquestador:
+- Se mantienen los perfiles de red (open, isolated, gateway_only = isolated sin
+  allowlist), los errores, la fábrica con `local` por defecto y `destroy_run`.
+- Las operaciones son asíncronas: el orquestador corre 5 cajas en paralelo con
+  asyncio y recibe hooks mientras los agentes ejecutan.
+- `create` recibe un `SandboxSpec` (plantilla, red, corrida, carril, rol, env) y el
+  repo se copia después con `write_files`, para inyectar el ataque y los secretos
+  en el orden correcto (los secretos nunca entran al commit base).
+- Se agregan `write_files`, `list_dir` y `list`, y el proveedor `fake` para tests
+  sin Docker (no aísla nada).
 """
 
 from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping
+from collections.abc import AsyncIterator, Mapping
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Literal
 
-VALID_PROVIDERS = ("local", "e2b")
+VALID_PROVIDERS = ("local", "e2b", "fake")
 DEFAULT_PROVIDER = "local"
 
 
@@ -41,6 +52,19 @@ class NetworkProfile:
     def is_gateway_only(self) -> bool:
         return self.kind == "isolated" and not self.allowlist
 
+    @property
+    def label(self) -> str:
+        if self.kind == "open":
+            return "open"
+        if self.is_gateway_only:
+            return "gateway_only"
+        return f"isolated({','.join(sorted(self.allowlist))})"
+
+    # Atajos usados por el orquestador
+    open = staticmethod(lambda: open_network())
+    isolated = staticmethod(lambda allowlist=(): isolated(allowlist))
+    gateway_only = staticmethod(lambda: gateway_only())
+
 
 def open_network() -> NetworkProfile:
     return NetworkProfile("open")
@@ -58,32 +82,47 @@ def gateway_only() -> NetworkProfile:
 # --- Sandbox y ejecución ---------------------------------------------------
 
 
-@dataclass(frozen=True)
+@dataclass
+class SandboxSpec:
+    run_id: str
+    lane: str
+    role: str
+    network: NetworkProfile
+    template: str = ""
+    env: dict[str, str] = field(default_factory=dict)
+    labels: dict[str, str] = field(default_factory=dict)
+    cpus: float = 1.0
+    memory_mb: int = 2048
+    ttl_s: int = 1800
+
+
+@dataclass
 class Sandbox:
     """Referencia a un sandbox creado por un proveedor."""
 
     id: str
-    run_id: str
-    provider: str
-    labels: Mapping[str, str] = field(default_factory=dict)
+    spec: SandboxSpec
+    ip: str | None = None
+    network: NetworkProfile | None = None
+
+    @property
+    def run_id(self) -> str:
+        return self.spec.run_id
 
 
 @dataclass(frozen=True)
-class ExecOutput:
-    """Fragmento de salida de un comando en ejecución."""
+class ExecEvent:
+    """Evento de un comando en ejecución. El último tiene stream="exit" y el código en data."""
 
-    stream: Literal["stdout", "stderr"]
+    stream: Literal["stdout", "stderr", "exit"]
     data: str
 
 
 @dataclass(frozen=True)
-class ExecExit:
-    """Último evento de un comando: su código de salida."""
-
+class ExecResult:
     exit_code: int
-
-
-ExecEvent = ExecOutput | ExecExit
+    stdout: str
+    stderr: str
 
 
 # --- Errores ---------------------------------------------------------------
@@ -110,57 +149,92 @@ class SandboxProvider(ABC):
     name: str
 
     @abstractmethod
-    def create(
-        self,
-        template: str,
-        task_repo: Path,
-        network: NetworkProfile,
-        run_id: str,
-        labels: Mapping[str, str] | None = None,
-    ) -> Sandbox:
-        """Crea un sandbox desde la plantilla, con el repo de la tarea y la red indicada."""
+    async def create(self, spec: SandboxSpec) -> Sandbox:
+        """Crea un sandbox desde la plantilla con su red ya aplicada. Nunca existe una caja sin política."""
 
     @abstractmethod
-    def exec(self, sandbox: Sandbox, cmd: str) -> Iterator[ExecEvent]:
-        """Ejecuta un comando y entrega su salida en streaming; el último evento es ExecExit."""
+    def exec(
+        self, sb: Sandbox, cmd: list[str], *, env: dict[str, str] | None = None,
+        user: str = "agent", cwd: str = "/workspace", timeout: float | None = None,
+    ) -> AsyncIterator[ExecEvent]:
+        """Ejecuta un comando y entrega su salida en streaming; el último evento es stream="exit"."""
 
     @abstractmethod
-    def read_file(self, sandbox: Sandbox, path: str) -> bytes:
+    async def write_files(self, sb: Sandbox, files: dict[str, bytes | str], mode: int = 0o644,
+                          owner: str = "agent") -> None:
+        """Escribe archivos con rutas absolutas dentro de la caja, creando directorios."""
+
+    @abstractmethod
+    async def read_file(self, sb: Sandbox, path: str) -> bytes:
         """Lee un archivo del sandbox."""
 
     @abstractmethod
-    def git_diff(self, sandbox: Sandbox) -> str:
-        """Devuelve el git diff del repo de la tarea dentro del sandbox."""
+    async def list_dir(self, sb: Sandbox, path: str) -> list[str]:
+        """Nombres de los archivos (no directorios) de una carpeta."""
+
+    async def git_diff(self, sb: Sandbox, base: str = "HEAD") -> str:
+        """git diff del repo de la tarea, sin .env ni archivos de control."""
+        await run(self, sb, ["git", "add", "-A"])
+        res = await run(self, sb, ["git", "diff", "--cached", "--binary", base, "--", ".",
+                                   ":(exclude).env", ":(exclude).gemelo", ":(exclude).gemelo_tests"])
+        return res.stdout
 
     @abstractmethod
-    def set_network(self, sandbox: Sandbox, network: NetworkProfile) -> None:
+    async def set_network(self, sb: Sandbox, network: NetworkProfile) -> None:
         """Cambia la red de un sandbox en ejecución sin reiniciarlo ni perder su estado."""
 
     @abstractmethod
-    def destroy(self, sandbox: Sandbox) -> None:
-        """Destruye un sandbox."""
+    async def destroy(self, sb: Sandbox) -> None:
+        """Destruye un sandbox. Idempotente."""
 
     @abstractmethod
-    def destroy_run(self, run_id: str) -> None:
+    async def list(self, run_id: str | None = None) -> list[Sandbox]:
+        """Sandboxes vivos, de una corrida o de todas."""
+
+    async def destroy_run(self, run_id: str) -> None:
         """Destruye todos los sandboxes de una corrida, aunque el proceso que los creó haya caído."""
+        for sb in await self.list(run_id):
+            await self.destroy(sb)
+
+
+async def run(provider: SandboxProvider, sb: Sandbox, cmd: list[str], **kw) -> ExecResult:
+    """Ejecuta y junta la salida. Para comandos cortos del orquestador."""
+    out, err, code = [], [], -1
+    async for ev in provider.exec(sb, cmd, **kw):
+        if ev.stream == "stdout":
+            out.append(ev.data)
+        elif ev.stream == "stderr":
+            err.append(ev.data)
+        else:
+            code = int(ev.data)
+    return ExecResult(code, "\n".join(out), "\n".join(err))
 
 
 # --- Fábrica ---------------------------------------------------------------
 
 
-def get_provider(env: Mapping[str, str] | None = None) -> SandboxProvider:
-    """Devuelve el proveedor indicado por SANDBOX_PROVIDER (por defecto, local)."""
-    env = os.environ if env is None else env
-    value = env.get("SANDBOX_PROVIDER", "").strip().lower() or DEFAULT_PROVIDER
+def get_provider(name: str | Mapping[str, str] | None = None, **kw) -> SandboxProvider:
+    """Devuelve el proveedor pedido, o el de SANDBOX_PROVIDER (por defecto, local).
+
+    Acepta el nombre o un mapping de entorno, como la versión original de la fábrica.
+    """
+    if name is None or isinstance(name, Mapping):
+        env = os.environ if name is None else name
+        name = env.get("SANDBOX_PROVIDER", "")
+    value = name.strip().lower() or DEFAULT_PROVIDER
 
     if value == "local":
         from gemelo.providers.local import LocalProvider
 
-        return LocalProvider()
+        return LocalProvider(**kw)
     if value == "e2b":
         from gemelo.providers.e2b import E2BProvider
 
-        return E2BProvider()
+        return E2BProvider(**kw)
+    if value == "fake":
+        from gemelo.providers.fake import FakeProvider
+
+        return FakeProvider(**kw)
 
     raise UnknownProviderError(
         f"SANDBOX_PROVIDER={value!r} no es válido. Valores válidos: {', '.join(VALID_PROVIDERS)}"
@@ -171,16 +245,17 @@ __all__ = [
     "DEFAULT_PROVIDER",
     "VALID_PROVIDERS",
     "ExecEvent",
-    "ExecExit",
-    "ExecOutput",
+    "ExecResult",
     "NetworkProfile",
     "ProviderError",
     "QuotaExceededError",
     "Sandbox",
     "SandboxProvider",
+    "SandboxSpec",
     "UnknownProviderError",
     "gateway_only",
     "get_provider",
     "isolated",
     "open_network",
+    "run",
 ]

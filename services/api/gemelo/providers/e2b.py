@@ -1,14 +1,14 @@
 """Proveedor E2B (microVMs).
 
 Se implementa en la fase E de add-sandbox-provider (grupo 5 de tasks.md).
+Red: `denyOut: 0.0.0.0/0` más `allowOut` con el gateway y la allowlist, cambiables en caliente.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping
-from pathlib import Path
+from collections.abc import AsyncIterator
 
-from gemelo.providers import ExecEvent, NetworkProfile, Sandbox, SandboxProvider
+from gemelo.providers import ExecEvent, NetworkProfile, Sandbox, SandboxProvider, SandboxSpec
 
 _PENDING = "Proveedor E2B pendiente: add-sandbox-provider, grupo 5"
 
@@ -16,30 +16,30 @@ _PENDING = "Proveedor E2B pendiente: add-sandbox-provider, grupo 5"
 class E2BProvider(SandboxProvider):
     name = "e2b"
 
-    def create(
-        self,
-        template: str,
-        task_repo: Path,
-        network: NetworkProfile,
-        run_id: str,
-        labels: Mapping[str, str] | None = None,
-    ) -> Sandbox:
+    async def create(self, spec: SandboxSpec) -> Sandbox:
         raise NotImplementedError(_PENDING)
 
-    def exec(self, sandbox: Sandbox, cmd: str) -> Iterator[ExecEvent]:
+    def exec(
+        self, sb: Sandbox, cmd: list[str], *, env: dict[str, str] | None = None,
+        user: str = "agent", cwd: str = "/workspace", timeout: float | None = None,
+    ) -> AsyncIterator[ExecEvent]:
         raise NotImplementedError(_PENDING)
 
-    def read_file(self, sandbox: Sandbox, path: str) -> bytes:
+    async def write_files(self, sb: Sandbox, files: dict[str, bytes | str], mode: int = 0o644,
+                          owner: str = "agent") -> None:
         raise NotImplementedError(_PENDING)
 
-    def git_diff(self, sandbox: Sandbox) -> str:
+    async def read_file(self, sb: Sandbox, path: str) -> bytes:
         raise NotImplementedError(_PENDING)
 
-    def set_network(self, sandbox: Sandbox, network: NetworkProfile) -> None:
+    async def list_dir(self, sb: Sandbox, path: str) -> list[str]:
         raise NotImplementedError(_PENDING)
 
-    def destroy(self, sandbox: Sandbox) -> None:
+    async def set_network(self, sb: Sandbox, network: NetworkProfile) -> None:
         raise NotImplementedError(_PENDING)
 
-    def destroy_run(self, run_id: str) -> None:
+    async def destroy(self, sb: Sandbox) -> None:
         raise NotImplementedError(_PENDING)
+
+    async def list(self, run_id: str | None = None) -> list[Sandbox]:
+        return []
