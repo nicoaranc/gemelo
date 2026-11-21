@@ -3,22 +3,28 @@
 # No contiene ninguna API key ni credencial del orquestador: secretos y tokens se copian al crear cada caja.
 # Construir: make sandbox-image  (tag gemelo-sandbox:local)
 
-FROM node:22-bookworm-slim AS node
-
+# Una sola etapa: E2B construye plantillas desde Dockerfile pero no admite multi-stage
+# (docs.e2b.dev/template/base-image, "Multi-stage Dockerfiles are not supported").
+# Node 22 se instala desde el tarball oficial, verificado contra SHASUMS256.txt.
 FROM python:3.12-slim-bookworm
 
 ARG CLAUDE_CODE_VERSION=2.1.330
-
-# Node 22 (binario y npm) desde la imagen oficial
-COPY --from=node /usr/local/bin/node /usr/local/bin/node
-COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
- && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+ARG NODE_VERSION=22.20.0
 
 # procps: el orquestador mata los procesos del agente al cortar por tiempo (pkill)
 RUN apt-get update \
- && apt-get install -y --no-install-recommends git curl ca-certificates procps jq \
+ && apt-get install -y --no-install-recommends git curl ca-certificates procps jq xz-utils \
  && rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in amd64) arch=x64 ;; arm64) arch=arm64 ;; *) exit 1 ;; esac; \
+    file="node-v${NODE_VERSION}-linux-${arch}.tar.xz"; \
+    cd /tmp; \
+    curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${file}"; \
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt" | grep " ${file}\$" | sha256sum -c -; \
+    tar -xJf "${file}" -C /usr/local --strip-components=1 --no-same-owner; \
+    rm "${file}"; \
+    node --version; npm --version
 
 RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
  && npm cache clean --force

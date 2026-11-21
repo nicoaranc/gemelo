@@ -1,1 +1,38 @@
-services: []
+# Blueprint de Render. Render solo conecta repos propios: se despliega desde el espejo
+# personal del repo (ver README, "Deploying & integrations").
+services:
+  - type: web
+    name: gemelo-api
+    runtime: docker
+    plan: starter            # el plan gratis duerme el servicio y se pierden corridas en memoria
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GEMELO_SANDBOX_PROVIDER
+        value: e2b
+      - key: GEMELO_ENV_NAME
+        value: render
+      - key: GEMELO_AGENT
+        value: scripted      # claude cuando el gateway de P2 esté arriba
+      - key: GEMELO_PUBLIC_BASE_URL
+        sync: false          # https://gemelo-api.onrender.com (host exacto, sin comodines)
+      - key: GEMELO_GATEWAY_STUB
+        value: "true"        # false con el gateway real
+      - key: GEMELO_GATEWAY_URL
+        sync: false
+      - key: GEMELO_GATEWAY_URL_SANDBOX
+        sync: false          # URL pública HTTPS del gateway, la misma que ven las cajas
+      - key: GEMELO_GATEWAY_ADMIN_TOKEN
+        sync: false
+      - key: GEMELO_ATTACKER_URL_SANDBOX
+        sync: false
+      - key: GEMELO_WEBHOOK_SECRET
+        generateValue: true
+      - key: GEMELO_API_TOKEN
+        generateValue: true
+      - key: GEMELO_CORS_ORIGINS
+        sync: false          # URL de la web de P4
+      - key: E2B_API_KEY
+        sync: false

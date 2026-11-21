@@ -12,7 +12,7 @@ import json
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
 
@@ -41,18 +41,28 @@ def create_app(
         ensure = getattr(prov, "ensure_infra", None)
         if ensure:
             await ensure()
-        # Cajas huérfanas de un proceso anterior
-        for sb in await prov.list():
-            if sb.spec.run_id not in orch.contexts:
-                await prov.destroy(sb)
+        # Cajas huérfanas de un proceso anterior de este mismo ambiente. Si el provider no
+        # responde, el servicio arranca igual: /health lo muestra y las corridas fallan con su error.
+        try:
+            for sb in await prov.list():
+                if sb.spec.run_id not in orch.contexts:
+                    await prov.destroy(sb)
+        except Exception as e:
+            print(f"aviso: no se pudieron limpiar cajas huérfanas: {type(e).__name__}: {e}", flush=True)
         orch.start()
         app.state.orch = orch
         yield
         await orch.stop()
 
     app = FastAPI(title="Gemelo orquestador", lifespan=lifespan)
-    app.add_middleware(CORSMiddleware, allow_origins=["*"] if settings.dev else [], allow_methods=["*"],
-                       allow_headers=["*"])
+    origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
+
+    def require_token(authorization: str = Header(default="")) -> None:
+        """Lanzar o cancelar corridas gasta crédito: con GEMELO_API_TOKEN definido se exige."""
+        if settings.api_token and not hmac.compare_digest(authorization.removeprefix("Bearer ").strip(),
+                                                          settings.api_token):
+            raise HTTPException(401, "token inválido")
 
     def orch(request: Request) -> Orchestrator:
         return request.app.state.orch
@@ -73,7 +83,7 @@ def create_app(
     async def tasks(request: Request):
         return [t.public() for t in orch(request).tasks.values()]
 
-    @app.post("/runs", status_code=201)
+    @app.post("/runs", status_code=201, dependencies=[Depends(require_token)])
     async def create_run(req: RunRequest, request: Request):
         try:
             r = await orch(request).submit(req)
@@ -92,7 +102,7 @@ def create_app(
     async def get_run(run_id: str, request: Request):
         return get_ctx(request, run_id).run.public()
 
-    @app.post("/runs/{run_id}/cancel")
+    @app.post("/runs/{run_id}/cancel", dependencies=[Depends(require_token)])
     async def cancel_run(run_id: str, request: Request):
         get_ctx(request, run_id)
         return {"cancelled": await orch(request).cancel(run_id)}

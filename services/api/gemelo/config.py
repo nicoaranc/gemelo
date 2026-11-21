@@ -50,6 +50,13 @@ class Settings(BaseSettings):
     agent: str = "scripted"
     lanes: str = "none,monitor,fides,gemelo"
 
+    # Token para lanzar o cancelar corridas (POST). Vacío = abierto, solo para desarrollo.
+    api_token: str = ""
+    # Etiqueta de ambiente en las cajas remotas: un ambiente nunca limpia las cajas de otro
+    env_name: str = "dev"
+    # Orígenes permitidos por CORS, separados por coma ("*" en desarrollo)
+    cors_origins: str = "*"
+
     tasks_dir: Path = REPO_ROOT / "tasks"
     sandbox_dir: Path = REPO_ROOT / "sandbox"
     dev: bool = True
@@ -58,9 +65,13 @@ class Settings(BaseSettings):
     def lane_list(self) -> list[str]:
         return [x.strip() for x in self.lanes.split(",") if x.strip()]
 
+    # URL pública del orquestador para cajas remotas (E2B): https en 443, sin comodines.
+    # Vacía en local, donde las cajas usan host.docker.internal a través del proxy.
+    public_base_url: str = ""
+
     @property
     def hook_base_sandbox(self) -> str:
-        return f"http://{self.public_host}:{self.port}"
+        return self.public_base_url.rstrip("/") or f"http://{self.public_host}:{self.port}"
 
 
 @lru_cache

@@ -31,7 +31,8 @@ packages = ["gemelo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-m 'not docker'"
+addopts = "-m 'not docker and not e2b'"
 markers = [
     "docker: requiere Docker y la imagen del sandbox",
+    "e2b: requiere E2B_API_KEY y la plantilla gemelo-sandbox",
 ]
