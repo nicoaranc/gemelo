@@ -12,4 +12,4 @@ export async function middleware(req: NextRequest) {
   return NextResponse.redirect(url);
 }
 
-export const config = { matcher: ["/panel/:path*", "/api/gemelo/:path*"] };
+export const config = { matcher: ["/panel/:path*", "/runs/:path*", "/api/gemelo/:path*"] };

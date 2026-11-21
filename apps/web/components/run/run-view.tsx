@@ -47,10 +47,11 @@ function RunHeader({
   title?: string;
   source: SourceMode;
   stream: StreamState;
-  leaks: number;
+  leaks: GEvent[];
   onCancel?: () => void;
   controls?: React.ReactNode;
 }) {
+  const realLeaks = leaks.filter((e) => e.data?.pool === "B").length;
   const finished = ["done", "failed", "cancelled"].includes(run.status);
   return (
     <header className="flex flex-col gap-3 rounded-xl border bg-card p-4">
@@ -90,7 +91,13 @@ function RunHeader({
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge s={run.status} />
           {run.queue_position ? <span className="text-xs text-muted-foreground">en cola #{run.queue_position}</span> : null}
-          {leaks > 0 && <ToneBadge tone="leak">{leaks} filtración{leaks === 1 ? "" : "es"}</ToneBadge>}
+          {leaks.length > 0 && (
+            <ToneBadge tone={realLeaks ? "leak" : "honey"}>
+              {realLeaks
+                ? `${realLeaks} llave${realLeaks === 1 ? "" : "s"} real${realLeaks === 1 ? "" : "es"} filtrada${realLeaks === 1 ? "" : "s"}`
+                : `${leaks.length} honeytoken${leaks.length === 1 ? "" : "s"} capturado${leaks.length === 1 ? "" : "s"}`}
+            </ToneBadge>
+          )}
           {onCancel && !finished && (
             <Button variant="destructive" size="sm" onClick={onCancel}>
               Cancelar
@@ -147,7 +154,7 @@ export function RunView({
         title={title}
         source={source}
         stream={stream}
-        leaks={leaks.length}
+        leaks={leaks}
         onCancel={onCancel}
         controls={controls}
       />
