@@ -15,7 +15,7 @@ export function LiveRun({ id }: { id: string }) {
       <div className="flex flex-col items-start gap-3 rounded-xl border p-6">
         <p>No se pudo cargar la corrida: {error}</p>
         <Button asChild variant="outline" size="sm">
-          <Link href="/panel">
+          <Link href="/demo/panel">
             <ArrowLeft className="size-4" aria-hidden /> Volver al panel
           </Link>
         </Button>
@@ -37,7 +37,7 @@ export function LiveRun({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <Link href="/panel" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link href="/demo/panel" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden /> Panel del equipo
       </Link>
       <RunView run={run} events={events} diffs={diffs} source="live" stream={stream} onCancel={cancel} />

@@ -20,7 +20,7 @@ export function LaunchPanel({ authenticated }: { authenticated: boolean }) {
         <LaunchForm />
       ) : (
         <Button asChild variant="outline" className="w-fit">
-          <Link href="/login?next=/ataca">
+          <Link href="/login?next=/demo/ataca">
             <Lock className="size-4" aria-hidden />
             Entrar para lanzar en vivo
           </Link>

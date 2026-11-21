@@ -53,12 +53,12 @@ export default function Demo() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link href="/ataca">
+              <Link href="/demo/ataca">
                 Ver un ataque <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/resultados">Ver los resultados</Link>
+              <Link href="/demo/resultados">Ver los resultados</Link>
             </Button>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function Demo() {
         </ul>
         <p className="text-xs text-muted-foreground">
           Lo que se espera de cada carril. Las cifras medidas están en{" "}
-          <Link href="/resultados" className="underline underline-offset-2 hover:text-foreground">
+          <Link href="/demo/resultados" className="underline underline-offset-2 hover:text-foreground">
             Resultados
           </Link>
           .

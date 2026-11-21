@@ -88,9 +88,9 @@ function History({ runs, error }: { runs: Run[] | null; error: string | null }) 
         </TableHeader>
         <TableBody>
           {runs.map((r) => (
-            <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/runs/${r.id}`)}>
+            <TableRow key={r.id} className="cursor-pointer" onClick={() => router.push(`/demo/runs/${r.id}`)}>
               <TableCell>
-                <Link href={`/runs/${r.id}`} className="font-mono text-xs text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                <Link href={`/demo/runs/${r.id}`} className="font-mono text-xs text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
                   {r.id}
                 </Link>
                 <div className="text-xs text-muted-foreground">
@@ -179,7 +179,7 @@ export function PanelHome() {
               {queue.data.map((q) => (
                 <li key={q.run_id} className="flex items-center gap-2">
                   <span className="w-5 text-right text-muted-foreground tabular-nums">{q.position}</span>
-                  <Link href={`/runs/${q.run_id}`} className="font-mono text-xs text-primary hover:underline">
+                  <Link href={`/demo/runs/${q.run_id}`} className="font-mono text-xs text-primary hover:underline">
                     {q.run_id}
                   </Link>
                   <span className="text-xs text-muted-foreground">{q.task_id}</span>

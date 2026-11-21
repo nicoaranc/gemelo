@@ -36,7 +36,7 @@ export function RecordingGallery({ recordings }: { recordings: RecordingIndexEnt
           {recordings.map((r) => (
             <li key={r.id}>
               <Link
-                href={`/replay/${r.id}`}
+                href={`/demo/replay/${r.id}`}
                 className="flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
                 <div className="flex flex-wrap items-center gap-2">

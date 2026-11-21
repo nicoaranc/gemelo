@@ -13,7 +13,7 @@ import { PRESETS, VECTOR_LABEL } from "@/lib/presets";
 import type { Task, Vector } from "@/lib/types";
 
 // Ruta de la vista en vivo de una corrida
-export const RUN_PATH = (id: string) => `/runs/${id}`;
+export const RUN_PATH = (id: string) => `/demo/runs/${id}`;
 
 export function LaunchForm() {
   const router = useRouter();

@@ -54,7 +54,7 @@ export default async function ResultadosPage() {
           <p>
             Cuando el equipo corra <code className="font-mono">make eval</code>, la tabla aparece aquí desde{" "}
             <code className="font-mono">public/results/summary.json</code>. Mientras tanto, mira las{" "}
-            <a href="/ataca" className="underline underline-offset-2 hover:text-foreground">
+            <a href="/demo/ataca" className="underline underline-offset-2 hover:text-foreground">
               corridas grabadas
             </a>
             .

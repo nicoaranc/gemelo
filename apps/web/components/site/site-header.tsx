@@ -9,11 +9,12 @@ import { AigisLogo } from "@/components/site/aigis-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+// Menú de la demo (todo detrás del login). La landing pública usa la barra sin menú
 const NAV = [
-  { href: "/", label: "Inicio" },
-  { href: "/ataca", label: "Ataca" },
-  { href: "/resultados", label: "Resultados" },
-  { href: "/panel", label: "Panel del equipo" },
+  { href: "/demo", label: "Cómo funciona" },
+  { href: "/demo/ataca", label: "Ataca" },
+  { href: "/demo/resultados", label: "Resultados" },
+  { href: "/demo/panel", label: "Panel del equipo" },
 ];
 
 export function ThemeToggle() {
@@ -33,32 +34,34 @@ export function ThemeToggle() {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ nav = true }: { nav?: boolean }) {
   const path = usePathname();
   return (
     <header className="sticky top-0 z-20 border-b bg-background">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
-        <Link href="/" aria-label="AIgis, inicio" className="flex items-center rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+        <Link href={nav ? "/demo" : "/"} aria-label="AIgis, inicio" className="flex items-center rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
           <AigisLogo />
         </Link>
-        <nav aria-label="Principal" className="order-3 flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto">
-          {NAV.map((n) => {
-            const on = n.href === "/" ? path === "/" : path.startsWith(n.href);
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                aria-current={on ? "page" : undefined}
-                className={cn(
-                  "rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  on && "bg-accent text-foreground",
-                )}
-              >
-                {n.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {nav && (
+          <nav aria-label="Principal" className="order-3 flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto">
+            {NAV.map((n) => {
+              const on = n.href === "/demo" ? path === "/demo" : path.startsWith(n.href);
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  aria-current={on ? "page" : undefined}
+                  className={cn(
+                    "rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                    on && "bg-accent text-foreground",
+                  )}
+                >
+                  {n.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
         <div className="ml-auto">
           <ThemeToggle />
         </div>

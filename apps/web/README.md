@@ -4,15 +4,18 @@ Web de AIgis. Next.js 15 con React 19, Tailwind v4 y shadcn/ui. Spec: `openspec/
 
 ## Páginas
 
+Solo `/` y `/login` son públicas. Todo lo demás vive bajo `/demo` y el middleware manda al login sin sesión (también `public/replays/` y `public/results/`). Las rutas viejas de la raíz (`/ataca`, `/panel`, `/runs/...`) redirigen a su versión bajo `/demo`.
+
 | Ruta | Acceso | Qué es |
 |---|---|---|
-| `/` | Público | Landing: la tesis, el diagrama de los dos gemelos, los carriles y lo que no cubre |
-| `/ataca` | Público | Galería de corridas grabadas. Con sesión, además, el formulario para lanzar en vivo |
-| `/replay/[id]` | Público | Reproduce una grabación sin API ni sesión (`/replay` redirige a `/ataca`) |
-| `/resultados` | Público | Tabla y gráfico desde `public/results/summary.json` |
+| `/` | Público | Landing de vitrina: marca y lista de espera, barra superior sin menú |
 | `/login` | Público | Contraseña del equipo |
-| `/panel` | Sesión | Salud del orquestador, lanzar, cola, historial y comando para grabar una corrida |
-| `/runs/[id]` | Sesión | Corrida en vivo (`/panel/runs/[id]` redirige aquí) |
+| `/demo` | Sesión | Cómo funciona: la tesis, el diagrama de los dos gemelos, los carriles y lo que no cubre |
+| `/demo/ataca` | Sesión | Galería de corridas grabadas y formulario para lanzar en vivo |
+| `/demo/replay/[id]` | Sesión | Reproduce una grabación sin API (`/demo/replay` redirige a `/demo/ataca`) |
+| `/demo/resultados` | Sesión | Tabla y gráfico desde `public/results/summary.json` |
+| `/demo/panel` | Sesión | Salud del orquestador, lanzar, cola, historial y comando para grabar una corrida |
+| `/demo/runs/[id]` | Sesión | Corrida en vivo (`/demo/panel/runs/[id]` redirige aquí) |
 
 La vista de corrida (`components/run/run-view.tsx`) es la misma para vivo y grabación: solo recibe `run`, `events` y `diffs`.
 
@@ -20,9 +23,9 @@ La vista de corrida (`components/run/run-view.tsx`) es la misma para vivo y grab
 
 El navegador nunca llama a la API directo. `app/api/gemelo/[...path]` reenvía a `AIGIS_API_URL` con `AIGIS_API_TOKEN` desde el servidor, solo para rutas de operación (`health`, `tasks`, `queue`, `runs/...`). El SSE de `/runs/{id}/events` pasa sin buffer y con un comentario `: ping` cada 15 s. El cliente reconecta con `?after=<seq>` (`hooks/useRunStream.ts`).
 
-Después del fin de una corrida, `/runs/[id]` sigue pidiendo eventos nuevos cada 20 s durante 10 min: las alertas de canary llegan tarde (`leak.detected` con `source: "canary"` y `late: true`) y recalculan los veredictos.
+Después del fin de una corrida, `/demo/runs/[id]` sigue pidiendo eventos nuevos cada 20 s durante 10 min: las alertas de canary llegan tarde (`leak.detected` con `source: "canary"` y `late: true`) y recalculan los veredictos.
 
-La sesión es una cookie httpOnly firmada con `PANEL_SECRET` (HMAC, 3 días). La revisan el middleware y el proxy; `/ataca` la revisa en el servidor. En producción, sin `PANEL_PASSWORD`, nadie entra. En desarrollo, sin `PANEL_PASSWORD`, todo queda abierto.
+La sesión es una cookie httpOnly firmada con `PANEL_SECRET` (HMAC, 3 días). La revisan el middleware y el proxy. En producción, sin `PANEL_PASSWORD`, nadie entra. En desarrollo, sin `PANEL_PASSWORD`, todo queda abierto.
 
 ## Grabaciones
 
@@ -34,7 +37,7 @@ make export-run RUN=<run_id> WAIT=2m ID=base64-readme TITLE="Ataque en base64 es
 ```
 
 - `WAIT` espera antes de leer para capturar alertas de canary tardías.
-- El script también actualiza `public/replays/index.json`, que es la galería de `/ataca`. `TEST=1` marca la grabación como prueba: se ve en desarrollo, no en producción.
+- El script también actualiza `public/replays/index.json`, que es la galería de `/demo/ataca`. `TEST=1` marca la grabación como prueba: se ve en desarrollo, no en producción.
 - Cada grabación nueva exige redeploy. Curarlas antes del freeze de h30.
 
 ## Resultados
