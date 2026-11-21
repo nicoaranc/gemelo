@@ -7,7 +7,7 @@ down:
 	docker compose down
 
 test:
-	cd services/api && python -m pytest
+	cd services/api && uv run pytest
 
 eval:
 	python eval/run_eval.py
