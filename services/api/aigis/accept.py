@@ -1,7 +1,7 @@
 """Aceptación del resultado de una caja: diff, tests y escaneo de secretos (D3).
 
-Se aplica a toda caja que entrega diff (carriles de una caja y gemelo alto), para
-que la tabla compare utilidad con el mismo criterio. Solo el gemelo alto tiene
+Se aplica a toda caja que entrega diff (carriles de una caja y gemelo bajo), para
+que la tabla compare utilidad con el mismo criterio. Solo el gemelo bajo tiene
 veredicto de entrega.
 """
 

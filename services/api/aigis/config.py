@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     test_timeout_s: int = 300
     hook_timeout_s: float = 5.0
     leak_grace_s: float = 20.0
-    low_grace_after_high_s: float = 30.0
+    high_grace_after_low_s: float = 30.0
     handoff_max_bytes: int = 200_000
 
     max_concurrent_runs: int = 1

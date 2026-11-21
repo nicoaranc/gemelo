@@ -1,6 +1,6 @@
 # Orquestador de AIgis (`services/api`)
 
-Recibe un ataque y una tarea, y los corre en cuatro carriles con cinco cajas: sin defensa, monitor, FIDES y Gemelo (bajo y alto). Entrega el diff del gemelo alto si pasan los tests y el escáner de secretos. Spec completo en `docs/spec-orquestador.md`.
+Recibe un ataque y una tarea, y los corre en cuatro carriles con cinco cajas: sin defensa, monitor, FIDES y Gemelo (alto y bajo). Entrega el diff del gemelo bajo si pasan los tests y el escáner de secretos. Spec completo en `docs/spec-orquestador.md`.
 
 ## Correr
 
@@ -56,7 +56,7 @@ Desde las cajas: `/hooks/{run}/{lane}/{role}/{pre,post}` y `/internal/egress` (p
 | `accept.py` | diff, tests sin red y escaneo del diff |
 | `scanner.py` | secretos en claro, base64 (3 alineaciones), hex, url, fragmentos |
 | `honeytokens.py` | pools A (honeytokens) y B (sintéticos), únicos por caja |
-| `handoff.py` | traspaso bajo -> alto, marcado no confiable |
+| `handoff.py` | traspaso alto -> bajo, marcado no confiable |
 | `leaks.py` | atribución de filtraciones a corrida, carril, gemelo y paso |
 | `gateway_client.py` | contrato con el gateway de P2 y stub |
 | `gateway/` | gateway del modelo (servicio aparte), ver la sección Gateway |
