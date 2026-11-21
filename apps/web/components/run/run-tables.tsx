@@ -120,7 +120,7 @@ export function DiffViewer({ run, diffs, ready }: { run: Run; diffs: Diffs; read
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        {lane === "gemelo" && <span className="text-xs text-muted-foreground">el diff del gemelo alto, solo si se entregó</span>}
+        {lane === "gemelo" && <span className="text-xs text-muted-foreground">el diff del gemelo bajo, solo si se entregó</span>}
       </div>
       {!ready(lane) ? (
         <p className="text-sm text-muted-foreground">El diff aparece cuando el carril termina.</p>

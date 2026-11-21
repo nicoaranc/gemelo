@@ -11,7 +11,7 @@ import { BoxTerminal } from "./box-terminal";
 
 function LaneColumn({ run, lane, events }: { run: Run; lane: LaneKind; events: GEvent[] }) {
   const l = run.lanes[lane];
-  const roles = lane === "gemelo" ? ["bajo", "alto"] : ["unico"];
+  const roles = lane === "gemelo" ? ["alto", "bajo"] : ["unico"];
   const head = laneHeadline(l.result);
   return (
     <section

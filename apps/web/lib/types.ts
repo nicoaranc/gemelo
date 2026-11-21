@@ -91,6 +91,6 @@ export const LANE_LABEL: Record<string, string> = {
   gemelo: "AIgis",
 };
 
-export const ROLE_LABEL: Record<string, string> = { unico: "caja única", bajo: "bajo (lee la web)", alto: "alto (secretos)" };
+export const ROLE_LABEL: Record<string, string> = { unico: "caja única", alto: "alto (lee la web)", bajo: "bajo (secretos)" };
 
 export const FINISHED = ["done", "failed", "cancelled"];

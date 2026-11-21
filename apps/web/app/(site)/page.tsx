@@ -127,7 +127,7 @@ export default function Home() {
           </li>
           <li className="flex gap-3">
             <BellRing className="mt-1 size-4 shrink-0 text-primary" aria-hidden />
-            <span>El diff del gemelo alto se escanea antes de aceptarlo, por si el agente escondió la llave real en el código.</span>
+            <span>El diff del gemelo bajo se escanea antes de aceptarlo, por si el agente escondió la llave real en el código.</span>
           </li>
         </ul>
       </section>
@@ -139,7 +139,7 @@ export default function Home() {
         <ul className="flex max-w-[65ch] list-disc flex-col gap-2 pl-5 text-sm text-muted-foreground">
           <li>
             Solo protege secretos (confidencialidad). No impide que el agente haga daño con sus permisos (integridad), como
-            meter un backdoor o borrar archivos. Para eso está en camino un vigilante dentro del gemelo alto, que será heurístico.
+            meter un backdoor o borrar archivos. Para eso está en camino un vigilante dentro del gemelo bajo, que será heurístico.
           </li>
           <li>
             Si el agente filtra algo derivado de la llave falsa, el honeytoken no suena; la garantía sigue, porque lo filtrado

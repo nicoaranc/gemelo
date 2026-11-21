@@ -11,8 +11,8 @@ export const LANE_DEFENSE: Record<LaneKind, string> = {
 
 export const BOX_LABEL: Record<string, { title: string; detail: string }> = {
   unico: { title: "Caja única", detail: "llaves reales" },
-  bajo: { title: "Gemelo bajo", detail: "internet · llaves falsas" },
-  alto: { title: "Gemelo alto", detail: "llaves reales · sin internet" },
+  alto: { title: "Gemelo alto", detail: "internet · llaves falsas" },
+  bajo: { title: "Gemelo bajo", detail: "llaves reales · sin internet" },
 };
 
 export const NETWORK_LABEL: Record<string, string> = {

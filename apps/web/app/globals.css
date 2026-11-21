@@ -12,7 +12,7 @@
  * Los nombres de shadcn (background, card, primary…) apuntan a los del sistema.
  * Semánticos del dominio, nunca decorativos, cada uno en su familia de color:
  *   leak    = fuga real de un secreto (pool B), errores. Carmesí.
- *   honey   = honeytoken / llave falsa. Arena y ámbar, como el gemelo bajo.
+ *   honey   = honeytoken / llave falsa. Arena y ámbar, como el gemelo alto.
  *   safe    = contenido, tests en verde (token ok). Verde azulado.
  *   warn    = resultado parcial: monitor engañado, FIDES que rompe la tarea. Violeta.
  *   blocked = neutro: cancelado o sin dato
@@ -58,9 +58,9 @@
   --warn: #6a31c1;
   --warn-soft: color-mix(in srgb, #6a31c1 12%, transparent);
   --terminal: #f3efe6;
-  /* Gemelos: bajo en arena (llaves falsas), alto en cobalto (llaves verdaderas) */
-  --twin-low: #a27842;
-  --twin-high: #1e4f91;
+  /* Gemelos: alto en arena (internet, llaves falsas), bajo en cobalto (sin internet, llaves verdaderas) */
+  --twin-high: #a27842;
+  --twin-low: #1e4f91;
   --iso-signal: #1e4f91;
   --iso-canary: #d9b98c;
   /* Serie de gráficos: el cobalto, que pasa contraste y croma sobre las tarjetas */
@@ -99,8 +99,8 @@
   --warn: #b588f8;
   --warn-soft: color-mix(in srgb, #b588f8 16%, transparent);
   --terminal: #0b121b;
-  --twin-low: #d9b98c;
-  --twin-high: #8db2ea;
+  --twin-high: #d9b98c;
+  --twin-low: #8db2ea;
   --iso-signal: #8db2ea;
   --iso-canary: #d9b98c;
   --chart-1: #8db2ea;
