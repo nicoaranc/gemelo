@@ -2,8 +2,8 @@
 
 ## 1. Plantilla del sandbox
 
-- [ ] 1.1 Reescribir `sandbox/Dockerfile` sobre Node 22 con Claude Code, git, Python 3.12 y los hooks; verificar que `claude --version`, `git --version` y `python --version` responden dentro de la imagen
-- [ ] 1.2 Agregar el target `make sandbox-image` y verificar que construye la imagen desde cero
+- [x] 1.1 Reescribir `sandbox/Dockerfile` sobre Node 22 con Claude Code, git, Python 3.12 y los hooks; verificar que `claude --version`, `git --version` y `python --version` responden dentro de la imagen
+- [x] 1.2 Agregar el target `make sandbox-image` y verificar que construye la imagen desde cero
 
 ## 2. Interfaz y fábrica
 

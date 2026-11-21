@@ -41,6 +41,7 @@ pnpm --dir apps/web install       # dependencias de la web
 
 | Qué | Con make | Sin make |
 |---|---|---|
+| Imagen del sandbox | `make sandbox-image` | `docker build -t gemelo-sandbox:local sandbox` |
 | Tests de la API | `make test` | `cd services/api && uv run pytest` |
 | Levantar servicios | `make up` | `docker compose up --build` |
 | Bajar servicios | `make down` | `docker compose down` |
@@ -56,6 +57,5 @@ pnpm --dir apps/web install       # dependencias de la web
 
 Estos pasos se agregan a medida que se implementan los cambios:
 
-- `make sandbox-image`: construir la plantilla local del sandbox (`add-sandbox-provider`).
 - Variables de `.env` para el gateway, E2B y canary tokens (`add-model-gateway`, `add-honeytoken-detection`).
 - `make run TASK=... LANES=...`: correr una tarea completa en local.
