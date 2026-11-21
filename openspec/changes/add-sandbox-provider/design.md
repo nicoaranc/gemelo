@@ -35,7 +35,7 @@ Ver proposal.md (Why). Render no permite contenedores privilegiados ni Docker de
 ## Risks / Trade-offs
 
 - [El spike de E2B falla (red, latencia o Claude Code)] → decidir en h10 el cambio a Modal, como dice el plan.
-- [Mantener dos proveedores consume el tiempo de P1] → decisión D6 pendiente con criterio de corte en h16.
+- [Mantener dos proveedores consume el tiempo de P1] → decisión D6: criterio de corte en h16. Si E2B no pasa la suite, solo el carril Gemelo corre en E2B y el resto queda en local con replay.
 - [Límite de 10 sandboxes simultáneos en E2B; una corrida completa usa 5] → la cola visible se resuelve en `add-playground-web`; aquí el proveedor expone el error de cuota de forma explícita.
 - [El proxy de allowlist local se comporta distinto a E2B] → la suite de conformidad prueba el comportamiento observable, no el mecanismo.
 - [Diferencia de rendimiento entre Docker y microVM] → no afecta a los requisitos; se mide en F4.

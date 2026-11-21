@@ -12,7 +12,7 @@ Todos los carriles (sin defensa, monitor, FIDES y Gemelo) corren Claude Code rea
 - Perfiles de red por sandbox: abierta, solo gateway + allowlist, y corte en caliente (para el carril FIDES, decisión D5: todo menos el gateway).
 - Plantilla de sandbox: Node 22, Claude Code, git, Python, el repo de la tarea y los hooks.
 - Una suite de conformidad que ambos proveedores deben pasar (los mismos tests).
-- **Pendiente D6**: si en h16 E2B no pasa la suite, producción usa solo el carril Gemelo en E2B y los demás carriles quedan en local con replay. Este cambio no implementa el corte; deja la suite lista para evaluarlo.
+- **Criterio de corte D6 (decidido)**: si en h16 E2B no pasa la suite de conformidad, producción usa solo el carril Gemelo en E2B y los demás carriles quedan en local con replay. Este cambio deja la suite lista para evaluar el criterio en h16.
 
 ## Capabilities
 

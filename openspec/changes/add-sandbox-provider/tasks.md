@@ -31,8 +31,8 @@
 
 ## 6. Integración
 
-- [ ] 6.1 Correr la suite completa con ambos proveedores y registrar el resultado para el criterio D6 (h16)
+- [ ] 6.1 En h16, correr la suite completa con ambos proveedores y aplicar el criterio D6: si E2B falla, dejar solo el carril Gemelo en E2B y anotar el resultado en `docs/DECISIONES.md`
 
 ## Workflow follow-up
 
-- Archivar el cambio cuando ambas suites pasen o cuando se resuelva D6.
+- Archivar el cambio cuando ambas suites pasen o cuando se aplique el corte de D6.
