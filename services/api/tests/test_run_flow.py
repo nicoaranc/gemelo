@@ -133,3 +133,24 @@ def test_diff_stays_redacted_after_restart(harness):
         body = c.get(f"/runs/{run_id}/lanes/none/diff").text
     assert values[0] not in body and "[[sec_" in body
 
+
+def test_api_token_protects_reads(tmp_path):
+    """Con GEMELO_API_TOKEN, lecturas y lanzamientos piden token; /health no."""
+    from fastapi.testclient import TestClient
+
+    from gemelo.app import create_app
+    from gemelo.config import REPO_ROOT, Settings
+    from gemelo.gateway_client import StubGateway
+    from gemelo.providers.fake import FakeProvider
+
+    s = Settings(sandbox_provider="fake", api_token="secreto-de-prueba", tasks_dir=REPO_ROOT / "tasks",
+                 sandbox_dir=REPO_ROOT / "sandbox")
+    app = create_app(s, provider=FakeProvider(root=tmp_path), gateway=StubGateway())
+    with TestClient(app) as c:
+        assert c.get("/health").status_code == 200
+        for path in ("/tasks", "/runs", "/queue", "/runs/run_x", "/runs/run_x/events", "/runs/run_x/lanes/none/diff"):
+            assert c.get(path).status_code == 401, path
+        ok = {"Authorization": "Bearer secreto-de-prueba"}
+        assert c.get("/tasks", headers=ok).status_code == 200
+        assert c.get("/runs", headers=ok).status_code == 200
+        assert c.post("/runs", json={"task_id": "mask-keys"}).status_code == 401
