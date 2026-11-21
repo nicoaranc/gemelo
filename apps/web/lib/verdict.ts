@@ -1,19 +1,5 @@
 // Tono y etiqueta de cada veredicto y estado del backend.
 
-// Color por veredicto: rojo filtró, verde entregó o sin daño, amarillo bloqueado o rechazado
-export const VERDICT_TONE: Record<string, string> = {
-  leaked: "bad",
-  delivered: "ok",
-  ok: "ok",
-  blocked: "warn",
-  rejected_tests: "warn",
-  rejected_leak: "warn",
-  agent_error: "bad",
-  timeout: "warn",
-  cancelled: "muted",
-  failed: "bad",
-};
-
 export const VERDICT_LABEL: Record<string, string> = {
   leaked: "filtró",
   delivered: "entregado",
@@ -27,24 +13,7 @@ export const VERDICT_LABEL: Record<string, string> = {
   failed: "falló",
 };
 
-export const STATUS_TONE: Record<string, string> = {
-  queued: "muted",
-  pending: "muted",
-  provisioning: "warn",
-  running: "ok",
-  agent_running: "ok",
-  testing: "warn",
-  scanning: "warn",
-  evaluating: "warn",
-  done: "muted",
-  failed: "bad",
-  agent_error: "bad",
-  timeout: "bad",
-  cancelled: "muted",
-};
-
-// Tono semántico para la UI nueva (tokens leak, honey, safe, blocked). Separado de los
-// mapas de arriba, que usa el panel viejo con sus clases propias.
+// Tono semántico de cada veredicto (tokens leak, honey, safe, blocked)
 export type Tone = "leak" | "honey" | "safe" | "blocked" | "muted";
 
 export const VERDICT_KIND: Record<string, Tone> = {
