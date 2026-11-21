@@ -1,103 +1,114 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Tema: oscuro por defecto (marca AIgis, oscura primero). next-themes pone .dark en <html>. */
+/* Tema: oscuro por defecto. next-themes pone .dark en <html>. */
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Tokens del sistema AIgis (docs/design-system/tokens.json), valores exactos.
+ * Paleta Egea (docs/design-system/tokens.json): Egea ajustada en claro y Egea noche en
+ * oscuro, la misma identidad en los dos temas (cobalto, arena y verde azulado sobre piedra
+ * y mar). Todos los textos pasan 4.5:1 sobre fondo, tarjetas, carril destacado, terminal y
+ * su propio relleno de estado; los bordes de los gemelos pasan 3:1.
  * Los nombres de shadcn (background, card, primary…) apuntan a los del sistema.
- * Semánticos del dominio, nunca decorativos:
- *   leak    = fuga real de un secreto (pool B), errores
- *   honey   = honeytoken / llave falsa (token honeytoken). Nada más usa ámbar.
- *   safe    = contenido, tests en verde (token ok)
- *   warn    = resultado parcial: monitor engañado, FIDES que rompe la tarea
+ * Semánticos del dominio, nunca decorativos, cada uno en su familia de color:
+ *   leak    = fuga real de un secreto (pool B), errores. Carmesí.
+ *   honey   = honeytoken / llave falsa. Arena y ámbar, como el gemelo bajo.
+ *   safe    = contenido, tests en verde (token ok). Verde azulado.
+ *   warn    = resultado parcial: monitor engañado, FIDES que rompe la tarea. Violeta.
  *   blocked = neutro: cancelado o sin dato
  *   tainted = contexto contaminado (riesgo, usa warn)
  */
 :root {
   --radius: 10px;
 
-  /* Marca, fija en ambos temas */
-  --brand-ink: #0a1214;
-  --brand-signal: #3ddbc4;
-  --brand-canary: #f2b544;
-  --brand-fog: #e6f0ee;
+  /* Marca (logo e isotipo sobre fondo oscuro), fija en ambos temas */
+  --brand-ink: #0f1722;
+  --brand-signal: #8db2ea;
+  --brand-canary: #d9b98c;
+  --brand-fog: #eee8dc;
 
-  /* Claro */
-  --background: #f3f6f5;
-  --foreground: #0a1214;
-  --card: #ffffff;
-  --card-foreground: #0a1214;
-  --popover: #ffffff;
-  --popover-foreground: #0a1214;
-  --raised: #dcf0ee;
-  --primary: #0f6b6b;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f6f5;
-  --secondary-foreground: #0a1214;
-  --muted: #f3f6f5;
-  --muted-foreground: #3e4e51;
-  --subtle: #5a6b6e;
-  --accent: #dcf0ee;
-  --accent-foreground: #0a1214;
-  --destructive: #bf3129;
-  --border: #d3dddb;
-  --input: #d3dddb;
-  --ring: #0f6b6b;
+  /* Claro: Egea ajustada */
+  --background: #f3efe6;
+  --foreground: #1f1a17;
+  --card: #fbf9f4;
+  --card-foreground: #1f1a17;
+  --popover: #fbf9f4;
+  --popover-foreground: #1f1a17;
+  --raised: #dce3e6;
+  --primary: #1e4f91;
+  --primary-foreground: #fbf9f4;
+  --secondary: #f3efe6;
+  --secondary-foreground: #1f1a17;
+  --muted: #f3efe6;
+  --muted-foreground: #4e4741;
+  --subtle: #6a6159;
+  --accent: #e7e1d4;
+  --accent-foreground: #1f1a17;
+  --destructive: #91062f;
+  --border: #ddd5c6;
+  --input: #ddd5c6;
+  --ring: #1e4f91;
 
-  --leak: #bf3129;
-  --leak-soft: #fbe4e2;
-  --honey: #9a5b00;
-  --safe: #1d7a4f;
-  --safe-soft: #e1f3ea;
-  --warn: #a84c06;
-  --warn-soft: #fdebdd;
-  --terminal: var(--background);
-  --iso-signal: #0f6b6b;
-  --iso-canary: #c98a12;
-  /* Serie de gráficos: azul validado (contraste y croma) contra las superficies de cada tema */
-  --chart-1: #2a78d6;
+  --leak: #91062f;
+  --leak-soft: color-mix(in srgb, #91062f 12%, transparent);
+  --honey: #89532b;
+  --honey-soft: color-mix(in srgb, #d9b98c 50%, transparent);
+  --safe: #006b62;
+  --safe-soft: color-mix(in srgb, #006b62 12%, transparent);
+  --warn: #6a31c1;
+  --warn-soft: color-mix(in srgb, #6a31c1 12%, transparent);
+  --terminal: #f3efe6;
+  /* Gemelos: bajo en arena (llaves falsas), alto en cobalto (llaves verdaderas) */
+  --twin-low: #a27842;
+  --twin-high: #1e4f91;
+  --iso-signal: #1e4f91;
+  --iso-canary: #d9b98c;
+  /* Serie de gráficos: el cobalto, que pasa contraste y croma sobre las tarjetas */
+  --chart-1: #1e4f91;
 }
 
+/* Oscuro: Egea noche, derivada de Egea */
 .dark {
-  --background: #0a1214;
-  --foreground: #e6f0ee;
-  --card: #121d20;
-  --card-foreground: #e6f0ee;
-  --popover: #121d20;
-  --popover-foreground: #e6f0ee;
-  --raised: #10353a;
-  --primary: #3ddbc4;
-  --primary-foreground: #0a1214;
-  --secondary: #0a1214;
-  --secondary-foreground: #e6f0ee;
-  --muted: #0a1214;
-  --muted-foreground: #a9bdba;
-  --subtle: #8fa6a3;
-  --accent: #10353a;
-  --accent-foreground: #e6f0ee;
-  --destructive: #ff7b72;
-  --border: #24363a;
-  --input: #24363a;
-  --ring: #3ddbc4;
+  --background: #0f1722;
+  --foreground: #eee8dc;
+  --card: #172231;
+  --card-foreground: #eee8dc;
+  --popover: #172231;
+  --popover-foreground: #eee8dc;
+  --raised: #1c3150;
+  --primary: #8db2ea;
+  --primary-foreground: #0f1722;
+  --secondary: #0f1722;
+  --secondary-foreground: #eee8dc;
+  --muted: #0f1722;
+  --muted-foreground: #b9b2a6;
+  --subtle: #a8a195;
+  --accent: #1c3150;
+  --accent-foreground: #eee8dc;
+  --destructive: #f86f7f;
+  --border: #2a3a50;
+  --input: #2a3a50;
+  --ring: #8db2ea;
 
-  --leak: #ff7b72;
-  --leak-soft: #3a1715;
-  --honey: #f2b544;
-  --safe: #5fd19a;
-  --safe-soft: #14301f;
-  --warn: #f59a4b;
-  --warn-soft: #35200f;
-  --chart-1: #3987e5;
-  --iso-signal: #3ddbc4;
-  --iso-canary: #f2b544;
+  --leak: #f86f7f;
+  --leak-soft: color-mix(in srgb, #f86f7f 16%, transparent);
+  --honey: #e3aa7b;
+  --honey-soft: color-mix(in srgb, #e3aa7b 16%, transparent);
+  --safe: #7dc8ae;
+  --safe-soft: color-mix(in srgb, #7dc8ae 16%, transparent);
+  --warn: #b588f8;
+  --warn-soft: color-mix(in srgb, #b588f8 16%, transparent);
+  --terminal: #0b121b;
+  --twin-low: #d9b98c;
+  --twin-high: #8db2ea;
+  --iso-signal: #8db2ea;
+  --iso-canary: #d9b98c;
+  --chart-1: #8db2ea;
 }
 
-/* Derivados: el sistema pide el ámbar al 14 % como fondo, y un neutro para lo que no es estado */
+/* Derivados: un neutro para lo que no es estado */
 :root,
 .dark {
-  --honey-soft: color-mix(in srgb, var(--honey) 14%, transparent);
   --blocked: var(--subtle);
   --blocked-soft: color-mix(in srgb, var(--subtle) 14%, transparent);
   --tainted: var(--warn);
@@ -148,6 +159,8 @@
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-raised: var(--raised);
+  --color-twin-low: var(--twin-low);
+  --color-twin-high: var(--twin-high);
   --color-subtle: var(--subtle);
   --color-brand-ink: var(--brand-ink);
   --color-brand-signal: var(--brand-signal);

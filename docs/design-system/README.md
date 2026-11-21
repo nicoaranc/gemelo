@@ -7,12 +7,12 @@ Archivos en esta carpeta:
 
 | Archivo | Qué es |
 |---|---|
-| `tokens.json` | Copia exacta de los tokens del artifact (color por tema, tipografía, espaciado, radios) |
+| `tokens.json` | Tokens del artifact (tipografía, espaciado, radios) con el color reemplazado por la paleta Egea (versión 2) |
 | `logos/aigis-logo.svg` | Logo completo 1000×1000 sobre `brand-ink` |
 | `logos/aigis-isotipo-oscuro.svg` | Solo el escudo, para fondos oscuros |
 | `logos/aigis-isotipo-claro.svg` | Solo el escudo en `#0F6B6B` y `#C98A12`, para fondos claros |
 
-Los SVG se reconstruyeron a partir de la geometría exacta que documenta el artifact, porque sus assets no se pudieron descargar. Los oficiales (incluido `aigis-logo.png` de 1000×1000 para la entrega) están en el grupo **Logos** del artifact. El wordmark es texto en Inter Bold con `cv08`: sin Inter instalada, la "I" pierde los remates y se lee "Algis"; conviértelo a contornos antes de exportarlo.
+Los SVG se reconstruyeron a partir de la geometría exacta que documenta el artifact, porque sus assets no se pudieron descargar. Todavía usan los colores de la paleta anterior (teal y ámbar); en la web el isotipo ya toma los colores de Egea desde el tema. Falta reexportar el logo oficial con la paleta nueva. Los oficiales (incluido `aigis-logo.png` de 1000×1000 para la entrega) están en el grupo **Logos** del artifact. El wordmark es texto en Inter Bold con `cv08`: sin Inter instalada, la "I" pierde los remates y se lee "Algis"; conviértelo a contornos antes de exportarlo.
 
 ## Nombre y voz
 
@@ -23,35 +23,39 @@ Los SVG se reconstruyeron a partir de la geometría exacta que documenta el arti
 
 ## Logo
 
-El isotipo es un escudo redondo de frente: disco sólido teal (el agente con las llaves verdaderas), aro y 8 remaches (la defensa que lo rodea sin tocarlo), hueco oscuro y núcleo ámbar (el honeytoken).
+El isotipo es un escudo redondo de frente: disco sólido cobalto (el agente con las llaves verdaderas), aro y 8 remaches (la defensa que lo rodea sin tocarlo), hueco oscuro y núcleo arena (el honeytoken).
 
-- Vive sobre `brand-ink` (`#0A1214`). En fondos claros, el isotipo claro y el nombre en `fg` con "AI" en `accent`.
+- Vive sobre `brand-ink` (`#0F1722`). En fondos claros, el isotipo en cobalto `#1E4F91` con núcleo arena y el nombre en `fg` con "AI" en `accent`.
 - Tamaño mínimo del isotipo: 24 px. Bajo 48 px se pierden los remaches, y está bien.
 - No recolorear, rotar, deformar, ni agregar sombras, degradados o marcos. El wordmark solo existe en Inter; el resto de la interfaz no usa Inter.
 
 ## Color
 
-Oscuro primero. Usa los nombres de token, no hex sueltos.
+Paleta **Egea**: Egea ajustada en el tema claro y Egea noche en el oscuro, la misma identidad en los dos (cobalto, arena y verde azulado sobre piedra y mar). Se eligió entre varias candidatas comparadas en la web real: [Paletas AIgis](https://claude.ai/artifact/Ey7FVx56TAM2eJMgqXpdjo). Usa los nombres de token, no hex sueltos.
 
-| Token | Oscuro | Claro | Para qué |
+| Token | Claro | Oscuro | Para qué |
 |---|---|---|---|
-| `bg` | `#0A1214` | `#F3F6F5` | Fondo de página |
-| `surface` | `#121D20` | `#FFFFFF` | Tarjetas, carriles, terminales |
-| `surface-raised` | `#10353A` | `#DCF0EE` | Lo destacado: el carril AIgis |
-| `border` | `#24363A` | `#D3DDDB` | Bordes de 1 px |
-| `fg` | `#E6F0EE` | `#0A1214` | Texto principal |
-| `fg-muted` | `#A9BDBA` | `#3E4E51` | Texto secundario |
-| `fg-subtle` | `#8FA6A3` | `#5A6B6E` | Etiquetas, metadatos |
-| `accent` | `#3DDBC4` | `#0F6B6B` | Enlaces, foco, botón primario |
-| `accent-on` | `#0A1214` | `#FFFFFF` | Texto sobre `accent` |
-| `honeytoken` | `#F2B544` | `#9A5B00` | Llaves falsas y su alarma |
-| `leak` / `leak-soft` | `#FF7B72` / `#3A1715` | `#BF3129` / `#FBE4E2` | Fuga real, error |
-| `ok` / `ok-soft` | `#5FD19A` / `#14301F` | `#1D7A4F` / `#E1F3EA` | Contenido, tests verdes |
-| `warn` / `warn-soft` | `#F59A4B` / `#35200F` | `#A84C06` / `#FDEBDD` | Resultado parcial |
+| `bg` | `#F3EFE6` | `#0F1722` | Fondo de página |
+| `surface` | `#FBF9F4` | `#172231` | Tarjetas y carriles |
+| `surface-raised` | `#DCE3E6` | `#1C3150` | Lo destacado: el carril AIgis |
+| `terminal` | `#F3EFE6` | `#0B121B` | Fondo de las terminales |
+| `border` | `#DDD5C6` | `#2A3A50` | Bordes de 1 px |
+| `fg` | `#1F1A17` | `#EEE8DC` | Texto principal |
+| `fg-muted` | `#4E4741` | `#B9B2A6` | Texto secundario |
+| `fg-subtle` | `#6A6159` | `#A8A195` | Etiquetas, metadatos |
+| `accent` | `#1E4F91` | `#8DB2EA` | Cobalto: enlaces, foco, botón primario, gemelo alto |
+| `accent-on` | `#FBF9F4` | `#0F1722` | Texto sobre `accent` |
+| `twin-low` | `#A27842` | `#D9B98C` | Arena del gemelo bajo (borde de su caja) |
+| `honeytoken` | `#89532B` | `#E3AA7B` | Llaves falsas y su alarma; relleno arena |
+| `leak` | `#91062F` | `#F86F7F` | Fuga real, error |
+| `ok` | `#006B62` | `#7DC8AE` | Contenido, tests verdes |
+| `warn` | `#6A31C1` | `#B588F8` | Resultado parcial |
 
-Marca fija en ambos temas: `brand-ink #0A1214`, `brand-signal #3DDBC4`, `brand-canary #F2B544`, `brand-fog #E6F0EE`.
+Cada estado tiene su `-soft` para el relleno (valores en `tokens.json`). Marca fija en ambos temas: `brand-ink #0F1722`, `brand-signal #8DB2EA`, `brand-canary #D9B98C`, `brand-fog #EEE8DC`.
 
-**Lenguaje de color:** teal = protegido; ámbar = honeytoken, y nada más (las advertencias genéricas usan `warn`, más naranjo); rojo = fuga real, nunca decorativo. Un solo acento por pantalla. Todo texto cumple 4.5:1 en ambos temas.
+**Lenguaje de color:** cobalto = protegido y gemelo alto; arena = honeytoken y gemelo bajo (el que tiene las llaves falsas), y nada más; carmesí = fuga real, nunca decorativo; violeta = resultado parcial; verde azulado = en orden. Cada estado va siempre con texto, porque con daltonismo rojo-verde se separan en la banda de 6 a 8 (ΔE).
+
+**Contraste medido:** todos los textos pasan 4.5:1 sobre fondo, tarjetas, carril destacado, terminal y su propio relleno de estado, en ambos temas. Los bordes de los gemelos pasan 3:1.
 
 ## Tipografía, espaciado y forma
 
@@ -80,11 +84,11 @@ La tarjeta **VistaAtaca** del artifact es la referencia visual de `/ataca` const
 
 La web sigue este sistema desde la rama `feat/web-redesign`:
 
-- `app/globals.css` usa los hex exactos de `tokens.json`. Los nombres de shadcn apuntan a los del sistema (`background` = `bg`, `card` = `surface`, `raised` = `surface-raised`, `muted-foreground` = `fg-muted`, `subtle` = `fg-subtle`, `primary` = `accent`). Los del dominio: `leak`, `honey` (= `honeytoken`), `safe` (= `ok`) y `warn`.
+- `app/globals.css` usa los valores de `tokens.json`: Egea ajustada en `:root` y Egea noche en `.dark`. Los nombres de shadcn apuntan a los del sistema (`background` = `bg`, `card` = `surface`, `raised` = `surface-raised`, `muted-foreground` = `fg-muted`, `subtle` = `fg-subtle`, `primary` = `accent`). Los del dominio: `leak`, `honey` (= `honeytoken`), `safe` (= `ok`), `warn`, `twin-low` y `twin-high`.
+- Cada gemelo tiene su color en el borde superior de su caja y en el diagrama de la landing.
 - Fuentes: IBM Plex Sans y Mono, Space Grotesk y, solo para el wordmark, Inter Bold servida desde `apps/web/app/fonts/` (inter-ui 4.1.1, OFL). Google Fonts le quita la variante `cv08` y sin ella "AIgis" se lee "Algis".
 - Donde "AIgis" va en Space Grotesk (título del carril, tarjeta de la landing), se usa el componente del wordmark, porque esa I tampoco tiene remates.
-- Logo, isotipo y favicon: `components/site/aigis-logo.tsx` y `app/icon.svg`. El isotipo toma los colores del tema: oscuro en tema oscuro, claro en tema claro.
-- El ámbar queda solo para honeytokens; los resultados parciales usan `warn`.
+- Logo, isotipo y favicon: `components/site/aigis-logo.tsx` y `app/icon.svg`. El isotipo de la web toma los colores del tema y el favicon usa cobalto y arena; los SVG de esta carpeta siguen con los colores anteriores.
 - Gemelo queda como nombre de la técnica: "Gemelo bajo" y "Gemelo alto" en las cajas y el diagrama.
 
-Diferencias que quedan: el gráfico de `/resultados` usa un azul propio (`chart-1`) que no está en el sistema, y los inputs usan radio 10 en vez de 6.
+Diferencias que quedan: los inputs usan radio 10 en vez de 6, y el artifact del sistema de diseño todavía muestra la paleta anterior.

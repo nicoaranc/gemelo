@@ -77,7 +77,7 @@ Para probar una alerta de canary tardía en local:
 
 ## Estilos
 
-Siguen el sistema AIgis (`docs/design-system/`). Tokens en `app/globals.css` con los hex de `tokens.json`; además de los de shadcn hay tokens del dominio: `leak` (llave real filtrada), `honey` (honeytoken; nada más usa ámbar), `safe` (contenido, tests en verde), `warn` (resultado parcial), `blocked` (neutro), `raised` (el carril AIgis), `terminal` y `chart-1`. Tema oscuro por defecto. El wordmark usa Inter Bold local (`app/fonts/`) por la variante `cv08`.
+Siguen el sistema AIgis (`docs/design-system/`) con la paleta Egea: Egea ajustada en claro y Egea noche en oscuro (`app/globals.css`, valores de `tokens.json`). Además de los tokens de shadcn hay tokens del dominio: `leak` (fuga real, carmesí), `honey` (honeytoken, arena; nada más usa arena o ámbar), `safe` (en orden, verde azulado), `warn` (resultado parcial, violeta), `blocked` (neutro), `raised` (el carril AIgis), `twin-low` y `twin-high` (los gemelos), `terminal` y `chart-1`. Tema oscuro por defecto. El wordmark usa Inter Bold local (`app/fonts/`) por la variante `cv08`.
 
 ## Render
 

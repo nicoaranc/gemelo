@@ -36,7 +36,7 @@ export function TwinDiagram() {
           <path d="M420 56 L570 104" stroke="var(--muted-foreground)" strokeWidth="1.5" fill="none" markerEnd="url(#arrow)" />
 
           {/* Gemelo bajo */}
-          <rect x="70" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--honey)" strokeWidth="2" strokeDasharray="7 5" />
+          <rect x="70" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-low)" strokeWidth="2.5" strokeDasharray="7 5" />
           <text x="90" y="136" fontSize="16" fontWeight="700" fill="var(--foreground)">
             Gemelo bajo
           </text>
@@ -52,7 +52,7 @@ export function TwinDiagram() {
           </text>
 
           {/* Gemelo alto */}
-          <rect x="450" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--primary)" strokeWidth="2" />
+          <rect x="450" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-high)" strokeWidth="2.5" />
           <text x="470" y="136" fontSize="16" fontWeight="700" fill="var(--foreground)">
             Gemelo alto
           </text>

@@ -37,6 +37,8 @@ export function BoxTerminal({
     <div
       className={cn(
         "flex min-w-0 flex-col overflow-hidden rounded-lg border bg-terminal",
+        role === "bajo" && "border-t-4 border-t-twin-low",
+        role === "alto" && "border-t-4 border-t-twin-high",
         leakedReal && "border-leak ring-1 ring-leak/40",
         !leakedReal && leakedHoney && "border-honey ring-1 ring-honey/40",
       )}
