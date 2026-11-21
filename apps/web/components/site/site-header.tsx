@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/", label: "Inicio" },
-  { href: "/demo", label: "Cómo funciona" },
   { href: "/ataca", label: "Ataca" },
   { href: "/resultados", label: "Resultados" },
   { href: "/panel", label: "Panel del equipo" },
