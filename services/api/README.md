@@ -4,21 +4,36 @@ Recibe un ataque y una tarea, y los corre en cuatro carriles con cinco cajas: si
 
 ## Correr
 
+Un solo juego de comandos para Windows, macOS y Linux, con [uv](https://docs.astral.sh/uv) (instala Python 3.12 y las dependencias del `uv.lock`):
+
 ```bash
 cd services/api
-python -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"   # en Linux: .venv/bin/python
-.venv/Scripts/python -m pytest -q                 # provider falso, sin Docker ni API
-make -C ../.. sandbox-image                        # imágenes gemelo-sandbox y gemelo-proxy
-.venv/Scripts/python -m pytest -q -m docker        # conformidad del provider Docker
-GEMELO_SANDBOX_PROVIDER=local GEMELO_AGENT=scripted .venv/Scripts/python -m uvicorn gemelo.app:app --port 8000
+uv sync                                   # una vez, o cuando cambie uv.lock
+uv run uvicorn gemelo.app:app --host 0.0.0.0 --port 8000   # 0.0.0.0: las cajas Docker la alcanzan por host.docker.internal
+uv run pytest                             # tests con provider falso, sin Docker ni API
 ```
 
-Variables con prefijo `GEMELO_`, ver `gemelo/config.py`. `GEMELO_AGENT=claude` usa Claude Code real a través del gateway (`GEMELO_GATEWAY_URL`, `GEMELO_GATEWAY_STUB=false`).
+Desde la raíz del repo es lo mismo con `make api` y `make test`.
+
+Por defecto la API usa el provider Docker local (`GEMELO_SANDBOX_PROVIDER=local`) y el agente con guion (`GEMELO_AGENT=scripted`). Opciones:
+
+| Para | Variable o comando |
+|---|---|
+| Probar sin Docker | `GEMELO_SANDBOX_PROVIDER=fake` (no aísla nada) |
+| Cajas en E2B | `GEMELO_SANDBOX_PROVIDER=e2b`, `E2B_API_KEY` y `GEMELO_PUBLIC_BASE_URL` |
+| Claude Code real | `GEMELO_AGENT=claude`, `GEMELO_GATEWAY_STUB=false` y la URL del gateway |
+| Pedir token en la API | `GEMELO_API_TOKEN` (en Render siempre) |
+| Guardar en Postgres | `DATABASE_URL` |
+| Conformidad Docker | `make sandbox-image` y `uv run pytest -m docker` |
+| Conformidad E2B | `uv run python -m gemelo.providers.e2b_template` y `uv run pytest -m e2b` |
+
+Las variables pueden ir en `.env` (ignorado por git). Todas llevan prefijo `GEMELO_` salvo `DATABASE_URL` y `E2B_API_KEY`; ver `gemelo/config.py`.
 
 ## API
 
 | Método | Ruta | Uso |
 |---|---|---|
+| `GET` | `/health` | estado; único endpoint sin token |
 | `GET` | `/tasks` | tareas disponibles |
 | `POST` | `/runs` | `{"task_id", "attack": {"vector": "readme"|"issue"|"webpage", "payload"}}` |
 | `GET` | `/runs/{id}` | estado y resultado por carril |
@@ -26,6 +41,8 @@ Variables con prefijo `GEMELO_`, ver `gemelo/config.py`. `GEMELO_AGENT=claude` u
 | `GET` | `/runs/{id}/lanes/{lane}/diff` | diff; en gemelo solo si se entregó |
 | `POST` | `/runs/{id}/cancel` | cancela y limpia |
 | `GET` | `/queue` | cola visible |
+
+Con `GEMELO_API_TOKEN` definido, todas las rutas de esta tabla salvo `/health` piden `Authorization: Bearer <token>`. El panel web lo agrega en su proxy.
 
 Desde las cajas: `/hooks/{run}/{lane}/{role}/{pre,post}` y `/internal/egress` (proxy). Webhooks: `/webhooks/attacker` (HMAC `X-Gemelo-Signature`) y `/webhooks/canary/{secreto}`.
 
@@ -35,7 +52,7 @@ Desde las cajas: `/hooks/{run}/{lane}/{role}/{pre,post}` y `/internal/egress` (p
 |---|---|
 | `runner.py` | cola, ciclo de una corrida, preparación de cajas, hooks, consolidación |
 | `lanes/` | defensa de cada carril en los hooks |
-| `providers/` | interfaz `SandboxProvider`; `local` (Docker), `fake` (tests), `e2b` (pendiente) |
+| `providers/` | interfaz `SandboxProvider`; `local` (Docker), `e2b` y `fake` (tests) |
 | `accept.py` | diff, tests sin red y escaneo del diff |
 | `scanner.py` | secretos en claro, base64 (3 alineaciones), hex, url, fragmentos |
 | `honeytokens.py` | pools A (honeytokens) y B (sintéticos), únicos por caja |
@@ -43,7 +60,7 @@ Desde las cajas: `/hooks/{run}/{lane}/{role}/{pre,post}` y `/internal/egress` (p
 | `leaks.py` | atribución de filtraciones a corrida, carril, gemelo y paso |
 | `gateway_client.py` | contrato con el gateway de P2 y stub |
 | `gateway/` | gateway del modelo (servicio aparte), ver la sección Gateway |
-| `store.py` | interfaz `Store`; `MemoryStore` (P3 agrega Postgres) |
+| `store.py`, `store_pg.py` | interfaz `Store`; `MemoryStore` y `PostgresStore` (con `DATABASE_URL`) |
 
 ## Gateway del modelo
 
