@@ -25,7 +25,7 @@ from collections.abc import AsyncIterator, Mapping
 from dataclasses import dataclass, field
 from typing import Literal
 
-VALID_PROVIDERS = ("local", "e2b", "fake")
+VALID_PROVIDERS = ("local", "e2b", "fake", "remote")
 DEFAULT_PROVIDER = "local"
 
 
@@ -231,6 +231,10 @@ def get_provider(name: str | Mapping[str, str] | None = None, **kw) -> SandboxPr
         from gemelo.providers.e2b import E2BProvider
 
         return E2BProvider(**kw)
+    if value == "remote":
+        from gemelo.providers.remote import RemoteProvider
+
+        return RemoteProvider(**kw)
     if value == "fake":
         from gemelo.providers.fake import FakeProvider
 

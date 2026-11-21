@@ -73,6 +73,22 @@ class Settings(BaseSettings):
     # Vacía en local, donde las cajas usan host.docker.internal a través del proxy.
     public_base_url: str = ""
 
+    # --- Cajas en otra máquina (provider remote) ---------------------------------
+    # Orquestador: URL y token de sandbox-host (la VM de cajas, p. ej. http://100.100.0.8:8080)
+    sandbox_host_url: str = ""
+    sandbox_host_token: str = ""
+    # sandbox-host / provider local: runtime de las cajas (runsc = gVisor; vacío = runc)
+    sandbox_runtime: str = ""
+    # IP a la que el proxy resuelve host.docker.internal (la del orquestador por la VPN).
+    # Vacío = host-gateway, el mismo host (Docker Desktop o Linux local).
+    sandbox_host_ip: str = ""
+    # resolv.conf a montar en las cajas. Con runsc el DNS interno de Docker (127.0.0.11) no
+    # funciona: se monta uno con DNS públicos y el proxy se resuelve con --add-host.
+    sandbox_resolv: str = ""
+    # Token con que el proxy reporta a /internal/egress. Compartido entre orquestador y
+    # sandbox-host cuando están en máquinas distintas. Vacío = aleatorio por proceso.
+    egress_token: str = ""
+
     @property
     def hook_base_sandbox(self) -> str:
         return self.public_base_url.rstrip("/") or f"http://{self.public_host}:{self.port}"

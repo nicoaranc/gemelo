@@ -69,8 +69,10 @@ class LocalProvider(SandboxProvider):
     def __init__(self, image: str = SANDBOX_IMAGE, runtime: str | None = None) -> None:
         s = get_settings()
         self.image = image
-        self.runtime = runtime
-        self.admin_token = secrets.token_urlsafe(24)
+        self.runtime = runtime or s.sandbox_runtime or None
+        self.admin_token = s.egress_token or secrets.token_urlsafe(24)
+        self.host_ip = s.sandbox_host_ip or "host-gateway"
+        self.resolv = s.sandbox_resolv or None
         host = "host.docker.internal"
         gw = httpx.URL(s.gateway_url_sandbox)
         self.always = sorted({f"{host}:{s.port}", f"{gw.host}:{gw.port or 80}"})
@@ -104,7 +106,7 @@ class LocalProvider(SandboxProvider):
                          "--label", "gemelo.infra=1", NET_EGRESS)
         await docker(
             "run", "-d", "--name", PROXY_NAME, "--label", "gemelo.infra=1", "--network", NET_EGRESS,
-            "--add-host", "host.docker.internal:host-gateway", "-p", "127.0.0.1:3129:3129",
+            "--add-host", f"host.docker.internal:{self.host_ip}", "-p", "127.0.0.1:3129:3129",
             "-e", f"ADMIN_TOKEN={self.admin_token}", "-e", f"ALWAYS={','.join(self.always)}",
             "-e", f"EVENTS_URL={self.events_url}", "-e", f"OPEN_ALSO={','.join(self.open_also)}", PROXY_IMAGE,
         )
@@ -172,6 +174,12 @@ class LocalProvider(SandboxProvider):
         ]
         if self.runtime:
             args += ["--runtime", self.runtime]
+        if self.resolv:
+            # Sin el DNS interno de Docker (no funciona con gVisor): DNS públicos (sin ruta en
+            # las cajas aisladas, así A2 se cumple igual) y el proxy por IP fija.
+            _, pip, _ = await docker("inspect", "-f", f'{{{{(index .NetworkSettings.Networks "{net}").IPAddress}}}}',
+                                     PROXY_NAME)
+            args += ["-v", f"{self.resolv}:/etc/resolv.conf:ro", "--add-host", f"{PROXY_ALIAS}:{pip.decode().strip()}"]
         for k, v in env.items():
             args += ["-e", f"{k}={v}"]
         args += [spec.template or self.image, "sleep", "infinity"]
@@ -318,7 +326,10 @@ class LocalProvider(SandboxProvider):
                 ti = tarfile.TarInfo(str(p).lstrip("/"))
                 ti.size, ti.mode, ti.uid, ti.gid, ti.mtime = len(raw), mode, uid, uid, int(time.time())
                 tar.addfile(ti, io.BytesIO(raw))
-        await docker("cp", "-a", "-", f"{sb.id}:/", input=buf.getvalue())
+        # tar por exec y no `docker cp`: con gVisor la raíz de la caja vive en su propia memoria
+        # y `docker cp` escribe en una capa que la caja no ve.
+        await docker("exec", "-i", "-u", "root", sb.id, "tar", "-x", "--same-owner", "-C", "/",
+                     input=buf.getvalue())
 
     async def read_file(self, sb: Sandbox, path: str) -> bytes:
         _, out, _ = await docker("exec", "-u", "root", sb.id, "cat", path)
