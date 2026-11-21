@@ -207,7 +207,7 @@ def create_app(
         if not settings.dev:
             raise HTTPException(404)
         return [{"id": sb.id, "run_id": sb.spec.run_id, "lane": sb.spec.lane, "role": sb.spec.role, "ip": sb.ip,
-                 "network": (sb.network or sb.spec.network).label()} for sb in await orch(request).provider.list()]
+                 "network": (sb.network or sb.spec.network).label} for sb in await orch(request).provider.list()]
 
     return app
 

@@ -14,6 +14,8 @@ team-13
 - Esteban Romero Berrios ([@estebanrb22](https://github.com/estebanrb22))
 - Juan Ignacio Valdivia Girardi ([@chunchometalero](https://github.com/chunchometalero))
 
+Entorno de desarrollo: ver [`docs/DESARROLLO.md`](docs/DESARROLLO.md).
+
 Before Submitting:
 
 - ✅ Fill in the project metadata (name, oneliner, description and deploy URL) in platanus-hack-project.jsonc

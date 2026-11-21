@@ -317,7 +317,7 @@ class Orchestrator:
                 txt = (sp.read_text("utf-8").replace("{ATTACKER_URL}", s.attacker_url_sandbox)
                        .replace("{DOC_URL}", self._doc_url(rc)))
                 await self.provider.write_files(sb, {"/tmp/gemelo_script.json": txt})
-        await self.emit(rc, "sandbox.ready", {"sandbox_id": sb.id, "network": net.label(),
+        await self.emit(rc, "sandbox.ready", {"sandbox_id": sb.id, "network": net.label,
                                              "pool": "A" if role == "bajo" else "B",
                                              "secrets": [x.env_name for x in refs]}, lane=lane, role=role)
 

@@ -17,13 +17,13 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 
 from ..config import get_settings
-from . import ExecEvent, NetworkProfile, Sandbox, SandboxSpec
+from . import ExecEvent, NetworkProfile, Sandbox, SandboxProvider, SandboxSpec
 
 _ENV_KEEP = ("PATH", "SYSTEMROOT", "SYSTEMDRIVE", "TEMP", "TMP", "COMSPEC", "PATHEXT", "WINDIR", "HOME",
              "USERPROFILE", "LANG")
 
 
-class FakeProvider:
+class FakeProvider(SandboxProvider):
     name = "fake"
 
     def __init__(self, root: Path | None = None, gateway_hosts: tuple[str, ...] = ()) -> None:

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import io
+import os
 import json
 import secrets
 import tarfile
@@ -30,7 +31,7 @@ from pathlib import Path, PurePosixPath
 import httpx
 
 from ..config import get_settings
-from . import ExecEvent, NetworkProfile, Sandbox, SandboxSpec
+from . import ExecEvent, NetworkProfile, Sandbox, SandboxProvider, SandboxSpec
 
 NET_EGRESS = "gemelo_egress"
 PROXY_NAME = "gemelo-proxy"
@@ -38,7 +39,7 @@ PROXY_NAME = "gemelo-proxy"
 # llega al proxy por su IP interna, que es la que tiene política.
 PROXY_ALIAS = "gemelo-egress-proxy"
 PROXY_IMAGE = "gemelo-proxy:dev"
-SANDBOX_IMAGE = "gemelo-sandbox:dev"
+SANDBOX_IMAGE = os.environ.get("SANDBOX_IMAGE", "gemelo-sandbox:local")  # mismo tag que `make sandbox-image`
 ADMIN_URL = "http://127.0.0.1:3129"
 UIDS = {"agent": 1001, "root": 0}
 
@@ -62,7 +63,7 @@ async def docker(*args: str, input: bytes | None = None, check: bool = True, tim
     return proc.returncode, out, err
 
 
-class DockerProvider:
+class LocalProvider(SandboxProvider):
     name = "local"
 
     def __init__(self, image: str = SANDBOX_IMAGE, runtime: str | None = None) -> None:
@@ -149,7 +150,7 @@ class DockerProvider:
     async def _policy(self, sb: Sandbox, profile: NetworkProfile) -> None:
         r = await self.http.put(f"{ADMIN_URL}/policies/{sb.ip}", json={
             "run_id": sb.spec.run_id, "lane": sb.spec.lane, "role": sb.spec.role,
-            "kind": profile.kind, "allowlist": list(profile.allowlist)})
+            "kind": profile.kind, "allowlist": sorted(profile.allowlist)})
         r.raise_for_status()
 
     # ---------- ciclo de vida ----------
@@ -331,3 +332,7 @@ class DockerProvider:
 
 def repo_root() -> Path:
     return get_settings().sandbox_dir.parent
+
+
+# Nombre anterior, usado en tests y scripts
+DockerProvider = LocalProvider
