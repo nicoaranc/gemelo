@@ -127,7 +127,7 @@ export function LaunchForm() {
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <Button type="submit" disabled={busy || !taskId}>
             <Rocket className="size-4" aria-hidden />
-            {busy ? "Lanzando…" : "Lanzar en los 4 carriles"}
+            {busy ? "Lanzando…" : "Lanzar en todos los carriles"}
           </Button>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>

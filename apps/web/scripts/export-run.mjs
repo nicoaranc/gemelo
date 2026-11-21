@@ -8,8 +8,8 @@
 // También agrega o actualiza su entrada en public/replays/index.json. --test la marca como
 // prueba: se ve en desarrollo, no en producción.
 //
-// Variables: GEMELO_API_URL (por defecto http://localhost:8000) y GEMELO_API_TOKEN (opcional,
-// se manda como Bearer por si la API protege las lecturas).
+// Variables: AIGIS_API_URL (por defecto http://localhost:8000) y AIGIS_API_TOKEN, que se manda
+// como Bearer porque la API exige token también en las lecturas. GEMELO_* sirve de respaldo.
 //
 // --wait espera antes de leer: las alertas de canary llegan minutos después del fin y
 // recalculan los veredictos, así que el run final y los eventos se leen después de esperar.
@@ -64,8 +64,9 @@ function parseDuration(s) {
   return (Number(m[1] || 0) * 60 + Number(m[2] || 0)) * 1000;
 }
 
-const base = (process.env.GEMELO_API_URL || "http://localhost:8000").replace(/\/$/, "");
-const headers = process.env.GEMELO_API_TOKEN ? { authorization: `Bearer ${process.env.GEMELO_API_TOKEN}` } : {};
+const base = (process.env.AIGIS_API_URL || process.env.GEMELO_API_URL || "http://localhost:8000").replace(/\/$/, "");
+const apiToken = process.env.AIGIS_API_TOKEN || process.env.GEMELO_API_TOKEN;
+const headers = apiToken ? { authorization: `Bearer ${apiToken}` } : {};
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function get(p) {

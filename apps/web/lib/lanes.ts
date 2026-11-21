@@ -4,6 +4,8 @@ import type { Tone } from "@/lib/verdict";
 
 export const LANE_DEFENSE: Record<LaneKind, string> = {
   none: "Llaves reales e internet abierto. Sin defensa.",
+  cc_sandbox: "Llaves reales. Reglas deny sobre .env y sandbox nativo de Bash con allowlist de dominios.",
+  auto_mode: "Llaves reales e internet. El clasificador de auto mode revisa cada acción riesgosa.",
   monitor: "Llaves reales e internet. Haiku revisa cada comando antes de que corra.",
   fides: "Llaves reales. Al leer un secreto se le corta la red, menos el gateway.",
   gemelo: "Dos copias: una con internet y llaves falsas, otra con llaves reales y sin internet.",
@@ -11,8 +13,8 @@ export const LANE_DEFENSE: Record<LaneKind, string> = {
 
 export const BOX_LABEL: Record<string, { title: string; detail: string }> = {
   unico: { title: "Caja única", detail: "llaves reales" },
-  bajo: { title: "Gemelo bajo", detail: "internet · llaves falsas" },
-  alto: { title: "Gemelo alto", detail: "llaves reales · sin internet" },
+  alto: { title: "Gemelo alto", detail: "internet · llaves falsas" },
+  bajo: { title: "Gemelo bajo", detail: "llaves reales · sin internet" },
 };
 
 export const NETWORK_LABEL: Record<string, string> = {

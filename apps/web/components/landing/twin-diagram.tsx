@@ -1,4 +1,4 @@
-// Los dos gemelos: el bajo tiene internet y llaves falsas; el alto tiene las llaves reales
+// Los dos gemelos: el alto tiene internet y llaves falsas; el bajo tiene las llaves reales
 // y solo puede hablar con el gateway. Colores desde los tokens para que funcione en ambos temas.
 export function TwinDiagram() {
   return (
@@ -12,8 +12,8 @@ export function TwinDiagram() {
         >
           <title id="twin-title">Cómo se separan los dos gemelos</title>
           <desc id="twin-desc">
-            El gemelo bajo tiene internet y llaves falsas; lo que manda afuera llega al atacante como un honeytoken. El gemelo
-            alto tiene las llaves reales y su red solo llega al gateway del modelo.
+            El gemelo alto tiene internet y llaves falsas; lo que manda afuera llega al atacante como un honeytoken. El gemelo
+            bajo tiene las llaves reales y su red solo llega al gateway del modelo.
           </desc>
           <defs>
             <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -35,10 +35,10 @@ export function TwinDiagram() {
           <path d="M340 56 L190 104" stroke="var(--muted-foreground)" strokeWidth="1.5" fill="none" markerEnd="url(#arrow)" />
           <path d="M420 56 L570 104" stroke="var(--muted-foreground)" strokeWidth="1.5" fill="none" markerEnd="url(#arrow)" />
 
-          {/* Gemelo bajo */}
-          <rect x="70" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-low)" strokeWidth="2.5" strokeDasharray="7 5" />
+          {/* Gemelo alto */}
+          <rect x="70" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-high)" strokeWidth="2.5" strokeDasharray="7 5" />
           <text x="90" y="136" fontSize="16" fontWeight="700" fill="var(--foreground)">
-            Gemelo bajo
+            Gemelo alto
           </text>
           <text x="90" y="158" fontSize="12" fill="var(--muted-foreground)">
             Claude Code real
@@ -51,10 +51,10 @@ export function TwinDiagram() {
             red abierta
           </text>
 
-          {/* Gemelo alto */}
-          <rect x="450" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-high)" strokeWidth="2.5" />
+          {/* Gemelo bajo */}
+          <rect x="450" y="108" width="240" height="132" rx="12" fill="var(--card)" stroke="var(--twin-low)" strokeWidth="2.5" />
           <text x="470" y="136" fontSize="16" fontWeight="700" fill="var(--foreground)">
-            Gemelo alto
+            Gemelo bajo
           </text>
           <text x="470" y="158" fontSize="12" fill="var(--muted-foreground)">
             Claude Code real
@@ -80,13 +80,13 @@ export function TwinDiagram() {
           <path d="M570 240 L570 280" stroke="var(--muted-foreground)" strokeWidth="1.5" fill="none" markerEnd="url(#arrow)" />
           <rect x="430" y="284" width="280" height="38" rx="8" fill="var(--muted)" stroke="var(--border)" />
           <text x="570" y="300" textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--foreground)">
-            Resultado: el diff del alto
+            Resultado: el diff del bajo
           </text>
           <text x="570" y="315" textAnchor="middle" fontSize="11" fill="var(--muted-foreground)">
             escaneado antes de aceptarlo
           </text>
 
-          {/* Bloqueo del alto hacia afuera */}
+          {/* Bloqueo del bajo hacia afuera */}
           <path d="M690 160 L740 160" stroke="var(--leak)" strokeWidth="2" strokeDasharray="4 4" />
           <line x1="722" y1="150" x2="742" y2="170" stroke="var(--leak)" strokeWidth="2.5" />
           <line x1="742" y1="150" x2="722" y2="170" stroke="var(--leak)" strokeWidth="2.5" />

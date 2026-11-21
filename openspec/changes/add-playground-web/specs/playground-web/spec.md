@@ -33,11 +33,11 @@ Lanzar una corrida en vivo SHALL requerir la sesión del panel. La web MUST deci
 - **THEN** se crea la corrida y la web navega a `/runs/{id}`
 
 ### Requirement: Vista de corrida en vivo
-La vista `/runs/{id}` SHALL mostrar los 4 carriles y sus 5 cajas actualizándose con los eventos del stream, y MUST reconectar después de un corte sin perder ni duplicar eventos.
+La vista `/runs/{id}` SHALL mostrar todos los carriles de la corrida y sus cajas actualizándose con los eventos del stream, y MUST reconectar después de un corte sin perder ni duplicar eventos.
 
 #### Scenario: Carriles en vivo
 - **WHEN** una corrida está en curso
-- **THEN** cada caja muestra sus comandos y eventos de red en orden, y el carril Gemelo muestra el gemelo bajo y el alto lado a lado
+- **THEN** cada caja muestra sus comandos y eventos de red en orden, y el carril Gemelo muestra el gemelo alto y el bajo lado a lado
 
 #### Scenario: Reconexión
 - **WHEN** el stream se corta y vuelve
@@ -54,8 +54,8 @@ La vista en vivo SHALL seguir escuchando eventos durante 10 minutos después de 
 La vista de corrida SHALL listar cada filtración con carril, caja, paso, canal y encoding, y MUST distinguir visualmente un secreto real (pool B) de un honeytoken (pool A).
 
 #### Scenario: Filtración de un honeytoken
-- **WHEN** el gemelo bajo filtra un honeytoken en base64
-- **THEN** la fila aparece marcada como honeytoken, con carril Gemelo, caja bajo, el paso y el encoding `base64`
+- **WHEN** el gemelo alto filtra un honeytoken en base64
+- **THEN** la fila aparece marcada como honeytoken, con carril Gemelo, caja alto, el paso y el encoding `base64`
 
 ### Requirement: Ningún secreto en claro
 La web MUST NOT mostrar en claro ningún valor del pool B, ni en eventos, ni en el diff, ni en una grabación.

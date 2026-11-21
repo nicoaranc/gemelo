@@ -78,9 +78,9 @@ services:
         sync: false
 
   # Panel del equipo y web de P4 (Next.js). El navegador habla solo con este servicio;
-  # el proxy /api/gemelo reenvía a gemelo-api con GEMELO_API_TOKEN, incluido el SSE.
+  # el proxy /api/gemelo reenvía a aigis-api con AIGIS_API_TOKEN, incluido el SSE.
   - type: web
-    name: gemelo-web
+    name: aigis-web
     runtime: node
     plan: starter            # el gratis duerme y corta el SSE de las corridas largas
     rootDir: apps/web
@@ -91,13 +91,13 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
-      - key: GEMELO_API_URL
-        sync: false          # https://gemelo-api.onrender.com
-      - key: GEMELO_API_TOKEN
+      - key: AIGIS_API_URL
+        sync: false          # https://aigis-api.onrender.com
+      - key: AIGIS_API_TOKEN
         fromService:
           type: web
-          name: gemelo-api
-          envVarKey: GEMELO_API_TOKEN
+          name: aigis-api
+          envVarKey: AIGIS_API_TOKEN
       - key: PANEL_PASSWORD
         sync: false          # contraseña compartida del equipo
       - key: PANEL_SECRET
