@@ -97,8 +97,12 @@ def create_app(
     @app.get("/health")
     async def health(request: Request):
         o = orch(request)
-        return {"ok": True, "provider": o.provider.name, "gateway_ok": await o.gateway.health(),
-                "agent": settings.agent, "lanes": settings.lane_list}
+        out = {"ok": True, "provider": o.provider.name, "gateway_ok": await o.gateway.health(),
+               "agent": settings.agent, "lanes": settings.lane_list}
+        if hasattr(o.provider, "template_ok"):  # E2B: qué plantilla usa y si existe
+            out["sandbox_template"] = o.provider.template
+            out["template_ok"] = o.provider.template_ok
+        return out
 
     @app.get("/tasks", dependencies=[Depends(require_token)])
     async def tasks(request: Request):
