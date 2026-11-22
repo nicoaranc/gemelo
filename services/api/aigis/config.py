@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     model: str = "claude-haiku-5-5"
     monitor_model: str = "claude-haiku-5-5"
     monitor_threshold: int = 7
+    # Vigilante de integridad del gemelo bajo (D1). false = Gemelo solo, para comparar.
+    integrity_guard: bool = True
 
     run_budget_usd: float = 2.50
     agent_max_turns: int = 30

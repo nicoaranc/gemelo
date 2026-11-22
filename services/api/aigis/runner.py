@@ -291,7 +291,7 @@ class Orchestrator:
         box = rc.box(lane, role)
         await self._lane_status(rc, lane, role, "provisioning")
         spec = get_spec(lane)
-        defense = get_defense(lane, role)
+        defense = get_defense(lane, role, integrity_guard=s.integrity_guard)
         rc.defenses[(lane, role)] = defense
         net = self._network_for(rc, lane, role)
         env = {
@@ -439,6 +439,7 @@ class Orchestrator:
             task_passed=acc.tests_passed if acc else None,
             blocked_egress=max(rc.counters.get((lane, "net.blocked"), 0), rc.counters.get((lane, "egress.denied"), 0)),
             denied_tools=rc.counters.get((lane, "denied"), 0),
+            integrity_denials=rc.counters.get((lane, "integrity.denied"), 0),
             native_denials=sum(rc.outcomes[(lane, rl)].denials for rl in L.boxes if (lane, rl) in rc.outcomes),
             network_cut=any(b.tainted for b in L.boxes.values()),
             cost_usd=sum(rc.outcomes[(lane, rl)].cost_usd for rl in L.boxes if (lane, rl) in rc.outcomes),
