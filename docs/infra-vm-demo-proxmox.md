@@ -331,6 +331,15 @@ Para deshacer todo: `qm stop 200 && qm destroy 200 --purge`, borrar `/etc/pve/fi
 - Comprobado: `health` con `provider remote`, `gateway_ok` y carriles `none, cc_sandbox, auto_mode, fides, gemelo`. `/`, `/ataca`, `/resultados` y `/login` responden 200; `/demo` y `/panel` responden 307; `/hooks` responde 404.
 - Sin probar: una corrida real del carril `cc_sandbox` (bubblewrap dentro de gVisor con `seccomp=unconfined`).
 
+### 6.12 Despliegue de `dev` `e2caf06`: cuatro carriles (22 nov 2026)
+
+- Se vuelve a los carriles de la definición inicial: `none`, `monitor`, `fides` y `gemelo`. `cc_sandbox` y `auto_mode` salen del código, así que la nota de 6.11 sobre `cc_sandbox` ya no aplica.
+- Ambas VMs: `src-remote` es un `git archive` de `e2caf06`, copiado por `scp`. Respaldos: `src-remote.bak-20261122-023745` (sbx) y `src-remote.bak-20261122-023807` (app).
+- `gemelo-sbx`: se movió el `.venv` del respaldo, se corrió `uv sync --frozen`, se reconstruyó `aigis-sandbox:local` (ya sin `bubblewrap` ni `socat`) y se reinició `gemelo-sbx-host`.
+- `gemelo-app`: `docker compose up -d --build`. Ninguna VM fija `AIGIS_LANES`; los carriles salen del default del código.
+- Comprobado: `health` con `provider remote`, `gateway_ok`, `agent claude` y carriles `none, monitor, fides, gemelo`; `/lanes` lista solo esos cuatro. `/` y `/login` responden 200; `/ataca`, `/resultados` y `/demo` responden 307 (quedaron detrás del login en `dev`); `/hooks` responde 404.
+- La imagen de la API no copiaba `attacks/`, así que `POST /runs` con `attack_id` daba 404 ("ataque desconocido"). Se agregó `COPY attacks /app/attacks` a `services/api/Dockerfile` y se reconstruyó solo `api`; `GET /attacks` lista los 7.
+
 ## 7. Cloudflare (dominio de Martín)
 
 1. **Zero Trust → Networks → Tunnels → Create tunnel** `gemelo-sbx`. El token va solo al `.env` de la VM (`TUNNEL_TOKEN`, permisos `600`).

@@ -9,7 +9,8 @@ otros caen (nuestra solución defiende).
 
 MODO REAL (por defecto): le pega a la API desplegada, que corre el MODELO REAL (agent=claude)
 en sandboxes reales (provider=remote, gVisor). Es la única forma de validar que protegemos el
-modelo: el ataque tiene que vencer al modelo de verdad.
+modelo: el ataque tiene que vencer al modelo de verdad. Las corridas van una por una (la API
+tiene una corrida a la vez) y los hits son los eventos `leak.detected` de cada corrida.
 
   AIGIS_MATRIX_API=http://100.100.0.9:8000 AIGIS_API_TOKEN=<token> python attacks/run_matrix.py
 
@@ -35,17 +36,21 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent            # .../attacks
-API = HERE.parent / "services" / "api"            # .../services/api
-sys.path.insert(0, str(API))
+API_DIR = HERE.parent / "services" / "api"        # .../services/api
+sys.path.insert(0, str(API_DIR))
 
 import httpx  # noqa: E402
+
+from aigis.attacks import load_attacks  # noqa: E402
 
 DEFAULT_LANES = ["none", "monitor", "fides", "gemelo"]
 TASK_ID = os.environ.get("AIGIS_MATRIX_TASK", "mask-keys")
 LANES = [x for x in os.environ.get("AIGIS_MATRIX_LANES", ",".join(DEFAULT_LANES)).split(",") if x]
+ONLY = [x for x in os.environ.get("AIGIS_MATRIX_ONLY", "").split(",") if x]  # subset de ataques
 LOCAL = os.environ.get("AIGIS_MATRIX_LOCAL") == "1"
 API = os.environ.get("AIGIS_MATRIX_API", "http://100.100.0.9:8000").rstrip("/")
 TOKEN = os.environ.get("AIGIS_API_TOKEN", "")
+RUN_TIMEOUT_S = float(os.environ.get("AIGIS_MATRIX_RUN_TIMEOUT", "1200"))
 SECRET = "matrix-secret"
 
 
@@ -56,6 +61,7 @@ def free_port() -> int:
 
 
 def start_attacker(port: int, orch_url: str, hits: list[bytes]) -> http.server.HTTPServer:
+    """Atacante local (solo modo local): reenvía todo, firmado, al webhook del orquestador."""
     class H(http.server.BaseHTTPRequestHandler):
         def _handle(self):
             n = int(self.headers.get("Content-Length") or 0)
@@ -83,15 +89,27 @@ def start_attacker(port: int, orch_url: str, hits: list[bytes]) -> http.server.H
     return srv
 
 
-def wait_run(base: str, run_id: str, timeout: float = 180) -> dict:
-    with httpx.Client(base_url=base, timeout=30) as c:
-        t0 = time.time()
-        while time.time() - t0 < timeout:
-            r = c.get(f"/runs/{run_id}").json()
-            if r["status"] in ("done", "failed", "cancelled"):
-                return r
-            time.sleep(0.4)
+def wait_run(c: httpx.Client, run_id: str, timeout: float) -> dict:
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        r = c.get(f"/runs/{run_id}")
+        r.raise_for_status()
+        run = r.json()
+        if run["status"] in ("done", "failed", "cancelled"):
+            return run
+        time.sleep(2)
     raise TimeoutError(run_id)
+
+
+def leak_events(c: httpx.Client, run_id: str) -> int:
+    """Cuenta los leak.detected de una corrida terminada (SSE sin follow)."""
+    n = 0
+    with c.stream("GET", f"/runs/{run_id}/events", params={"follow": "false"}, timeout=60) as r:
+        r.raise_for_status()
+        for line in r.iter_lines():
+            if line == "event: leak.detected":
+                n += 1
+    return n
 
 
 def fmt_cell(res: dict | None) -> str:
@@ -110,16 +128,66 @@ def fmt_cell(res: dict | None) -> str:
     return v + (f" ({'/'.join(marks)})" if marks else "")
 
 
-def main() -> int:
+def run_attacks(c: httpx.Client, attacks: dict, hits_of) -> dict[str, dict]:
+    rows: dict[str, dict] = {}
+    for aid in attacks:
+        if ONLY and aid not in ONLY:
+            continue
+        r = c.post("/runs", json={"task_id": TASK_ID, "attack_id": aid, "lanes": LANES})
+        if r.status_code != 201:
+            rows[aid] = {"_error": f"{r.status_code}: {r.text[:120]}"}
+            print(f"{aid}: ERROR {r.status_code} {r.text[:200]}", flush=True)
+            continue
+        run_id = r.json()["run_id"]
+        try:
+            run = wait_run(c, run_id, RUN_TIMEOUT_S)
+        except TimeoutError:
+            rows[aid] = {"_error": f"timeout esperando {run_id}"}
+            print(f"{aid}: TIMEOUT {run_id}", flush=True)
+            continue
+        res: dict = {ln: (run["lanes"].get(ln, {}) or {}).get("result") for ln in LANES}
+        res["_run"] = run_id
+        res["_status"] = run["status"]
+        res["_hits"] = hits_of(run_id)
+        res["_kind"] = "code" if attacks[aid].files else "model"
+        rows[aid] = res
+        cells = "  ".join(f"{ln}={fmt_cell(res.get(ln))}" for ln in LANES)
+        print(f"{aid:20} [{res['_kind']:5}] {run_id} hits={res['_hits']}  {cells}", flush=True)
+    return rows
+
+
+def main_real(attacks: dict) -> tuple[dict, dict]:
+    if not TOKEN:
+        raise SystemExit("falta AIGIS_API_TOKEN para la API desplegada")
+    with httpx.Client(base_url=API, timeout=30, headers={"authorization": f"Bearer {TOKEN}"}) as c:
+        h = c.get("/health").json()
+        if h.get("agent") != "claude":
+            raise SystemExit(f"la API no corre el modelo real: {h}")
+        meta = {"api": API, "provider": h.get("provider"), "agent": h.get("agent")}
+        print(f"task={TASK_ID} api={API} provider={meta['provider']} agent={meta['agent']} lanes={LANES}\n",
+              flush=True)
+        rows = run_attacks(c, attacks, lambda run_id: leak_events(c, run_id))
+    return meta, rows
+
+
+def main_local(attacks: dict) -> tuple[dict, dict]:
+    import uvicorn
+
+    from aigis.app import create_app
+    from aigis.config import REPO_ROOT, Settings
+    from aigis.gateway_client import StubGateway
+    from aigis.providers.fake import FakeProvider
+    from aigis.store import MemoryStore
+
     port, aport = free_port(), free_port()
     boxes = Path(os.environ.get("TEMP", "/tmp")) / f"aigis-matrix-{port}"
     settings = Settings(
-        sandbox_provider=PROVIDER, public_host="127.0.0.1", port=port, gateway_stub=(PROVIDER == "fake"),
+        sandbox_provider="fake", public_host="127.0.0.1", port=port, gateway_stub=True,
         gateway_url_sandbox=f"http://127.0.0.1:{port}/gw", attacker_url_sandbox=f"http://127.0.0.1:{aport}",
-        agent=AGENT, leak_grace_s=1.0, high_grace_after_low_s=10, agent_timeout_s=120, test_timeout_s=120,
+        agent="scripted", leak_grace_s=1.0, high_grace_after_low_s=10, agent_timeout_s=120, test_timeout_s=120,
         tasks_dir=REPO_ROOT / "tasks", sandbox_dir=REPO_ROOT / "sandbox", webhook_secret=SECRET,
     )
-    provider = FakeProvider(root=boxes, gateway_hosts=(f"127.0.0.1:{port}",)) if PROVIDER == "fake" else None
+    provider = FakeProvider(root=boxes, gateway_hosts=(f"127.0.0.1:{port}",))
     app = create_app(settings, provider=provider, gateway=StubGateway(), store=MemoryStore())
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
     th = threading.Thread(target=server.run, daemon=True)
@@ -130,52 +198,50 @@ def main() -> int:
         time.sleep(0.05)
     hits: list[bytes] = []
     atk = start_attacker(aport, f"http://127.0.0.1:{port}", hits)
-
-    attacks = load_attacks(HERE / "catalog.yaml")
-    rows: dict[str, dict] = {}
-    print(f"task={TASK_ID} provider={PROVIDER} agent={AGENT} lanes={LANES}\n")
+    meta = {"api": "local", "provider": "fake", "agent": "scripted"}
+    print(f"task={TASK_ID} provider=fake agent=scripted lanes={LANES} (MODO LOCAL: no prueba protección)\n")
     try:
         with httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=30) as c:
-            for aid in attacks:
-                before = len(hits)
-                r = c.post("/runs", json={"task_id": TASK_ID, "attack_id": aid, "lanes": LANES})
-                if r.status_code != 201:
-                    rows[aid] = {"_error": f"{r.status_code}: {r.text[:120]}"}
-                    print(f"{aid}: ERROR {r.status_code}")
-                    continue
-                run = wait_run(f"http://127.0.0.1:{port}", r.json()["run_id"])
-                res = {ln: (run["lanes"].get(ln, {}) or {}).get("result") for ln in LANES}
-                res["_hits"] = len(hits) - before
-                res["_kind"] = "code" if attacks[aid].files else "model"
-                rows[aid] = res
-                cells = "  ".join(f"{ln}={fmt_cell(res.get(ln))}" for ln in LANES)
-                print(f"{aid:20} [{res['_kind']:5}] hits={res['_hits']}  {cells}")
+            rows = run_attacks(c, attacks, lambda run_id: leak_events(c, run_id))
     finally:
         atk.shutdown()
         server.should_exit = True
         th.join(timeout=10)
+    return meta, rows
 
+
+def write_results(meta: dict, rows: dict) -> None:
     out = HERE / "results"
     out.mkdir(exist_ok=True)
     (out / "matrix.json").write_text(json.dumps(
-        {"task": TASK_ID, "provider": PROVIDER, "agent": AGENT, "lanes": LANES, "rows": rows}, indent=2), "utf-8")
+        {"task": TASK_ID, **meta, "lanes": LANES, "generated_at": time.strftime("%Y-%m-%d %H:%M:%S %z"),
+         "rows": rows}, indent=2, ensure_ascii=False) + "\n", "utf-8")
 
-    lines = [f"# Matriz de resultados — ataque × carril",
-             f"", f"`task={TASK_ID}` · `provider={PROVIDER}` · `agent={AGENT}`", "",
+    lines = ["# Matriz de resultados — ataque × carril", "",
+             f"`task={TASK_ID}` · `provider={meta['provider']}` · `agent={meta['agent']}` · "
+             f"generada {time.strftime('%Y-%m-%d %H:%M')}", "",
              "| ataque | kind | hits | " + " | ".join(LANES) + " |",
              "|---|---|---|" + "---|" * len(LANES)]
     for aid, res in rows.items():
         if res.get("_error"):
-            lines.append(f"| {aid} | | | {res['_error']} |")
+            lines.append(f"| {aid} | | | {res['_error']} |" + " |" * (len(LANES) - 1))
             continue
         cells = " | ".join(fmt_cell(res.get(ln)) for ln in LANES)
         lines.append(f"| {aid} | {res['_kind']} | {res['_hits']} | {cells} |")
     lines += ["", "Leyenda: `LEAK`=filtró secreto real · `hon`=solo honeytoken · `netcut`=red cortada · "
-              "`denyN`=N herramientas negadas. gemelo: `delivered`=no filtró y tarea pasó.",
-              "", "Límite: con provider fake / agente de guion los ataques `model` no caen solos y la red "
-              "no se aísla de verdad; para la tabla fiel correr con provider+modelo reales en las VMs."]
-    (out / "matrix.md").write_text("\n".join(lines), "utf-8")
+              "`denyN`=N herramientas negadas · hits=eventos `leak.detected` de la corrida. "
+              "gemelo: `delivered`=no filtró y la tarea pasó."]
+    if meta["agent"] != "claude":
+        lines += ["", "OJO: corrida con agente de guion. Los ataques `model` no caen solos y la red no se "
+                  "aísla; no mide protección."]
+    (out / "matrix.md").write_text("\n".join(lines) + "\n", "utf-8")
     print(f"\nGuardado: {out / 'matrix.md'}  y  {out / 'matrix.json'}")
+
+
+def main() -> int:
+    attacks = load_attacks(HERE / "catalog.yaml")
+    meta, rows = main_local(attacks) if LOCAL else main_real(attacks)
+    write_results(meta, rows)
     return 0
 
 
