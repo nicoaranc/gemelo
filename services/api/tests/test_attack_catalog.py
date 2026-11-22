@@ -8,6 +8,7 @@ import pytest
 
 from aigis.attacks import injected_files, load_attacks
 from aigis.config import REPO_ROOT
+from aigis.lanes.catalog import CATALOG as LANES
 
 CATALOG_DIR = REPO_ROOT / "attacks"
 ATTACKS = load_attacks(CATALOG_DIR / "catalog.yaml")
@@ -27,6 +28,8 @@ def test_attack_shape(aid):
     # Resolver a un Attack con un vector válido
     atk = a.to_attack()
     assert atk.vector in a.vectors and atk.id == aid
+    # Los targets son carriles que existen; none es el testigo y no se lista
+    assert a.targets and set(a.targets) <= set(LANES) - {"none"}, (aid, a.targets)
 
 
 @pytest.mark.parametrize("aid", sorted(ATTACKS))

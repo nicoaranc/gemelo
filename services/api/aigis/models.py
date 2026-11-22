@@ -9,7 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-LaneKind = Literal["none", "cc_sandbox", "auto_mode", "monitor", "fides", "gemelo"]
+LaneKind = Literal["none", "monitor", "fides", "gemelo"]
 Role = Literal["unico", "alto", "bajo"]
 AttackVector = Literal["readme", "webpage", "issue"]
 RunStatus = Literal["queued", "provisioning", "running", "evaluating", "done", "failed", "cancelled"]

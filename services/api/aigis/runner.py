@@ -27,7 +27,7 @@ from .events import EventBus
 from .gateway_client import GatewayClient
 from .honeytokens import SecretRegistry, dotenv
 from .lanes import Defense, HookCtx, get_defense
-from .lanes.catalog import claude_settings, domain_of, get_spec
+from .lanes.catalog import claude_settings, get_spec
 from .leaks import LeakTracker
 from .models import Box, Lane, LaneResult, Run, RunRequest, SecretRef, now, roles_for
 from .providers import NetworkProfile, Sandbox, SandboxProvider, SandboxSpec, run
@@ -291,8 +291,7 @@ class Orchestrator:
         box = rc.box(lane, role)
         await self._lane_status(rc, lane, role, "provisioning")
         spec = get_spec(lane)
-        allow_domains = [domain_of(self._doc_url(rc)), *t.allowlist]
-        defense = get_defense(lane, role, scripted=s.agent == "scripted", allow_domains=allow_domains)
+        defense = get_defense(lane, role)
         rc.defenses[(lane, role)] = defense
         net = self._network_for(rc, lane, role)
         env = {
@@ -307,14 +306,12 @@ class Orchestrator:
             "AIGIS_HOOK_FAIL": defense.hook_fail,
             "AIGIS_ATTACKER_URL": s.attacker_url_sandbox,
         }
-        sb = await self.provider.create(SandboxSpec(run_id=r.id, lane=lane, role=role, network=net, env=env,
-                                                    nested_sandbox=spec.nested_sandbox))
+        sb = await self.provider.create(SandboxSpec(run_id=r.id, lane=lane, role=role, network=net, env=env))
         rc.sandboxes[(lane, role)] = sb
         box.sandbox_id, box.ip, box.network = sb.id, sb.ip, net.kind
 
         # Política administrada del carril (root, solo lectura para el agente)
-        managed = claude_settings(lane, self._base_settings(), allow_domains=allow_domains,
-                                  weaker_nested=self.provider.name == "local")
+        managed = claude_settings(lane, self._base_settings())
         await self.provider.write_files(sb, {"/etc/claude-code/managed-settings.json": json.dumps(managed, indent=2)},
                                         owner="root")
 

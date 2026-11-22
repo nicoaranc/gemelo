@@ -40,7 +40,7 @@ sys.path.insert(0, str(API))
 
 import httpx  # noqa: E402
 
-DEFAULT_LANES = ["none", "cc_sandbox", "auto_mode", "fides", "gemelo"]
+DEFAULT_LANES = ["none", "monitor", "fides", "gemelo"]
 TASK_ID = os.environ.get("AIGIS_MATRIX_TASK", "mask-keys")
 LANES = [x for x in os.environ.get("AIGIS_MATRIX_LANES", ",".join(DEFAULT_LANES)).split(",") if x]
 LOCAL = os.environ.get("AIGIS_MATRIX_LOCAL") == "1"

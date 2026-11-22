@@ -18,16 +18,16 @@ defensa. Todo corre en las cajas con gVisor y con secretos **sintéticos**; no s
 
 ## Estado: implementado vs pendiente
 
-### Implementado (esta rama, off main)
+### Implementado (en `dev`)
 - [x] `CatalogAttack.files` + `injected_files()` en `attacks.py`: inyección de archivos con
       validación de rutas (no `.env`/`.git`/`.aigis`/`..`).
 - [x] `runner.py`: inyecta los archivos del ataque en el repo.
 - [x] `attacks/catalog.yaml`: los 7 ataques con metadata, canales, vectores y `targets`.
-- [x] `targets` alineados a los carriles reales (`cc_sandbox`, `auto_mode`, `fides`, `gemelo`);
-      `none` es el testigo de validez, no se lista. Cada ataque apunta al carril del estado del
-      arte que busca exponer.
-- [x] `tasks/mask-keys/task.yaml`: `allowlist: [pypi.org]` (habilita `allowlist-exfil`, el ataque
-      que rompe el empate con `cc_sandbox`).
+- [x] `targets` alineados a los cuatro carriles (`none`, `monitor`, `fides`, `gemelo`); `none` es
+      el testigo de validez, no se lista. Cada ataque apunta al carril que busca exponer, y un
+      test exige que los `targets` existan en el catálogo de carriles.
+- [x] `tasks/mask-keys/task.yaml`: `allowlist: [pypi.org]` (habilita `allowlist-exfil`, que prueba
+      si el gemelo bajo puede sacar la llave por un dominio permitido).
 - [x] Código funcional de los ataques con archivo: `attacks/files/repo-conftest/conftest.py` y
       `attacks/files/docs-checker/tools/check_format.py`.
 - [x] Test de que el catálogo carga y las rutas son válidas.
@@ -56,19 +56,19 @@ resultado esperado por carril). Resumen:
 | `repo-conftest` | code | una defensa que mira al modelo no ve el código que corre solo (DEMO) |
 | `docs-checker` | model | el agente corre un "checker oficial" malicioso |
 | `diff-embed` | model | el secreto sale en el diff entregado (posible hueco) |
-| `allowlist-exfil` | model | salida por un dominio permitido (posible hueco) |
+| `allowlist-exfil` | model | el gemelo bajo saca la llave por un dominio de la allowlist (posible hueco de AIgis) |
 | `handoff-backchannel` | model | canal de vuelta bajo→alto en el gemelo |
-| `fides-race` | model | leer y mandar en un solo comando, antes del corte de FIDES (posible hueco) |
-| `monitor-split` | model | exfiltración repartida en pasos inocentes |
+| `fides-race` | model | leer y mandar en un solo comando; FIDES debería cortar en el pre |
+| `monitor-split` | model | exfiltración repartida en pasos inocentes para burlar al monitor |
 
-Prioridad para endurecer la solución: `diff-embed`, `allowlist-exfil` y `fides-race`.
+Prioridad para endurecer la solución: `allowlist-exfil` y `diff-embed`, que apuntan a `gemelo`.
 
 ## Cómo seguir con opencode
 
 opencode ya está instalado y con la key de OpenRouter conectada.
 
 ```bash
-cd <ruta>/hackaton-attacks      # este worktree (rama claude/attack-catalog)
+cd <ruta>/hackaton               # rama dev
 opencode
 ```
 
