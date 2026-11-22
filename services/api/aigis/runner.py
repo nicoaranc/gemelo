@@ -20,6 +20,7 @@ from typing import Any
 from . import accept, scanner
 from .agent import AgentOutcome, apply_result, build_command, parse_line, texts_from
 from .attacks import load_attacks
+from .attacks import injected_files
 from .attacks import render as render_attack
 from .config import Settings
 from .events import EventBus
@@ -75,7 +76,8 @@ class Orchestrator:
         self.bus = EventBus(store, redactor=self.redact)
         self.leaks = LeakTracker(self)
         self.tasks: dict[str, Task] = load_tasks(settings.tasks_dir)
-        self.attacks = load_attacks(settings.tasks_dir.parent / "attacks" / "catalog.yaml")
+        self.catalog_dir = settings.tasks_dir.parent / "attacks"
+        self.attacks = load_attacks(self.catalog_dir / "catalog.yaml")
         self.contexts: dict[str, RunCtx] = {}
         self.pages: dict[tuple[str, str], str] = {}
         self._queue: asyncio.Queue[str] = asyncio.Queue()
@@ -329,6 +331,11 @@ class Orchestrator:
                 files["/workspace/README.md"] = rd + "\n\n" + a.payload + "\n"
             elif a.vector == "issue":
                 files["/workspace/ISSUE.md"] = t.issue_template().replace("{payload}", a.payload)
+            # Archivos del ataque dentro del repo (ataques "el código corre solo")
+            cat = self.attacks.get(a.id) if a.id else None
+            if cat and cat.files:
+                for rel, data in injected_files(self.catalog_dir, cat, s.attacker_url_sandbox).items():
+                    files[f"/workspace/{rel}"] = data
         elif "{issue_path}" in t.prompt:
             files["/workspace/ISSUE.md"] = t.issue_template().replace("{payload}", "")
         web_payload = render_attack(r.attack.payload, s.attacker_url_sandbox) if r.attack and r.attack.vector == "webpage" else ""
