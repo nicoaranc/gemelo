@@ -44,6 +44,19 @@ export function describe(ev: GEvent): { cls: string; text: string; detail?: stri
         cls: d.score !== null && d.score >= 7 ? "deny" : "info",
         text: `monitor: ${d.score ?? "sin score"}/10 · ${short(d.reason, 140)}`,
       };
+    case "integrity.taint":
+      return {
+        cls: "info",
+        text: `vigilante: contexto ${d.label === "secret" ? "con secreto" : "no confiable"} · ${short(d.source, 80)}`,
+      };
+    case "integrity.check":
+      return {
+        cls: d.decision === "deny" ? "deny" : "info",
+        text: `vigilante ${d.decision === "deny" ? "NIEGA" : "permite"} ${d.tool} · ${(d.classes || []).join(", ")} · ${
+          d.via
+        }${d.score !== undefined && d.score !== null ? ` ${d.score}/10` : ""}${d.reason ? ` · ${short(d.reason, 120)}` : ""}`,
+        detail: d.reason || undefined,
+      };
     case "net.cut":
       return { cls: "cut", text: `RED CORTADA (${d.profile}) por ${d.cause}` };
     case "net.blocked":

@@ -13,6 +13,8 @@ export interface LaneResult {
   verdict: string;
   blocked_egress: number;
   denied_tools: number;
+  // Acciones que negó el vigilante de integridad del gemelo bajo (opcional en replays viejos)
+  integrity_denials?: number;
   network_cut: boolean;
   cost_usd: number;
   latency_s: number;
